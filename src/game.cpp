@@ -3,50 +3,45 @@
 
 #include "game.hpp"
 #include "board.hpp"
+#include "utils.hpp"
 
-/*
-* Constructor
-*/
+
 Game::Game(){
     this->board = new Board();
-    this->turn = WHITE;
+    this->turn = Color::WHITE;
 }
 
 
-/*
-* If currently white's turn, sets turn to black, and vice versa.
-*/
+Board* Game::getBoard(){
+    return board;
+}
+
+
 void Game::toggleTurn(){
-    if (turn == WHITE){
-        this->turn = BLACK;
-    } else{
-        this->turn = WHITE;
-    }
+    turn = (turn == Color::WHITE) ? Color::WHITE : Color::BLACK;
 }
 
 
-/*
-* Get the color of the player whose turn it is, in the form of an all-caps string
-*/
-std::string Game::getTurn(){
-    return (this->turn == WHITE) ? "WHITE" : "BLACK";
+Color Game::getTurn(){
+    return turn;
 }
 
 
-/*
-* Represents the player whose turn it is resigning
-*/
+std::string Game::getTurnStr(){
+    return (turn == Color::WHITE) ? "WHITE" : "BLACK";
+}
+
+
+
 void Game::resign(){
-    std::cout << this->getTurn() << " RESIGNS" << std::endl;
+    std::cout << getTurnStr() << " RESIGNS" << std::endl;
+    std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
 }
 
 
-/*
-* Represents the player whose turn it is offering a draw to the other player
-*/
-void Game::offerDraw(){
-    std::string playerOffering = this->getTurn();
-    std::string playerRecieving= (this->turn == WHITE) ? "BLACK" : "WHITE";
+bool Game::offerDraw(){
+    std::string playerOffering = getTurnStr();
+    std::string playerRecieving= (turn == Color::WHITE) ? "BLACK" : "WHITE";
 
     std::cout << playerOffering << " OFFERS A DRAW" << std::endl;
     std::cout << playerRecieving<< ", TYPE y TO ACCEPT AND n TO DECLINE: "; 
@@ -63,9 +58,11 @@ void Game::offerDraw(){
 
     if (resp == "y"){
         std::cout << "DRAW" << std::endl;
+        return true;
         std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
     } else {
         std::cout << "DRAW DECLINED, GAME CONTINUES" << std::endl;
+        return false;
     }
 }
 

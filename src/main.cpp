@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "game.hpp"
+#include "utils.hpp"
 
 
 int main(){
@@ -14,33 +15,46 @@ int main(){
     std::string input;
     std::vector<std::string> move;
     bool end = false;
+
     // Game loop
     while(!end){
 
-        std::cout << game.getTurn() << "'S TURN" << std::endl;
+        std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+        std::cout << "> ";
         std::cin >> input;
-        std::cout << std::endl;
 
-        game.toggleTurn();
-    }
-}
+        // Resign
+        if (input == "r"){
+            game.resign();
+            end = true;
+        } 
 
+        // Offer draw
+        else if (input == "od"){ 
+            bool accepted = game.offerDraw();
+            if (accepted){ end = true; }
+        } 
 
-/*
-* Provided a string representing a users input, tokenizes it into an array of strings, 
-* using whitespaces as seperating chars. 
-*/
-std::vector<std::string> tokenizeInput(std::string input){
+        // Move
+        else if (input[0] == 'm'){
+            std::string start = input.substr(2, 2);
+            std::string end = input.substr(5, 2);
 
-    std::vector<std::string> tokens;
-    std::string token = "";
-    for (int i = 0; i < input.length(); i++){
-        if (input[i] == ' '){
-            tokens.push_back(token);
-            token = "";
-        } else{
-            token += input[i];
+            // Check if square strings are valid
+            if (!isValidSquareStr(start)){
+                std::cout << "INVALID STARTING SQUARE INPUT. TRY AGAIN" << std::endl;
+            }
+            else if (!isValidSquareStr(end)){
+                std::cout << "INVALID DESTINATION SQUARE INPUT. TRY AGAIN" << std::endl;
+            }
+            else {
+                int* startArr = squareStrToMoveArr(start);
+                int* endArr = squareStrToMoveArr(end);
+                game.getBoard()->movePiece(startArr, endArr);
+
+                game.toggleTurn();
+            }
         }
+        std::cout << std::endl;
     }
-    return tokens;
 }
