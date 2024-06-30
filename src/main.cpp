@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "game.hpp"
-#include "utils.hpp"
+#include "square.hpp"
 
 
 int main(){
@@ -13,18 +13,19 @@ int main(){
 
     Game game;
 
+    // Print starting board & "white's turn"
+    std::cout << "WHITE'S TURN" << std::endl;
+    game.printBoard();
+
     std::string input;
     std::vector<std::string> move;
     bool end = false;
 
     // Game loop
     while(!end){
-
-        game.getBoard()->printBoard();
-
-        std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+        
         std::cout << "> ";
-        std::getline(std::cin, input);
+        std::cin >> input;
 
         // Resign
         if (input == "r"){
@@ -39,28 +40,44 @@ int main(){
         } 
 
         // Move
-        else if (input[0] == 'm'){
-            std::string start = input.substr(2, 2);
-            std::string end = input.substr(5, 2); 
+        else if (input == "m"){
+            
+            bool check; // Will hold the bool returned by game.movePiece() and thus will validate moves.
+            do {
+
+                // Get & validate starting square string (square on which piece to move is located).
+                std::string startStr;
+                do {
+                    std::cout << "START SQUARE: ";
+                    std::cin >> startStr;
+                    if (!isValidSquareStr(startStr)){
+                        std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
+                    }
+                } while (!isValidSquareStr(startStr));
+
+                // Get & validate destination square string.
+                std::string destStr;
+                do {
+                    std::cout << "DESTINATION SQUARE: ";
+                    std::cin >> destStr;
+                    if (!isValidSquareStr(destStr)){
+                        std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
+                    }
+                } while (!isValidSquareStr(destStr));
 
 
-            // Check if square strings are valid
-            if (!isValidSquareStr(start)){
-                std::cout << "INVALID STARTING SQUARE INPUT. TRY AGAIN" << std::endl;
-            }
-            else if (!isValidSquareStr(end)){
-                std::cout << "INVALID DESTINATION SQUARE INPUT. TRY AGAIN" << std::endl;
-            }
+                Square startArr = strToSquare(startStr);
+                Square endArr = strToSquare(destStr);
+                check = game.movePiece(startArr, endArr);
 
-            else {
-                int* startArr = squareStrToSquareArr(start);
-                int* endArr = squareStrToSquareArr(end);
-                bool check = game.getBoard()->movePiece(startArr, endArr);
-                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-                if (check){ // If move was valid and was executed, go to next turn
-                    game.toggleTurn();
-                } // If move was invalid (i.e check==false), do nothing. The program will take us back to the top of the game loop anyway
-            }
+            } while (!check); // If move was invalid (i.e check==false).
+            
+            game.toggleTurn();
+            // Print board and turn for next turn.
+            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+            std::cout << std::endl;
+            std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+            game.printBoard();
         }
 
         // Unrecognized input
