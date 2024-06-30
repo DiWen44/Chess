@@ -13,7 +13,7 @@ class Board{
         void printBoard();
 
         // Used in printBoard to pain white and black squares
-        // If background color is white, switches it to black, and vice versa
+        // If square background color is white, switches it to black, and vice versa
         void toggleBackgroundColor();
 
         // Returns pointer to the piece located at a specified position
@@ -30,8 +30,8 @@ class Board{
         void vacatePos(int* pos);
 
         // Moves a piece from position start to position end
-        // Returns true if move completed, returns false and prints an error msg
-        // if move is found to be illegal/invalid
+        // Returns true if move completed, 
+        // if move is found to be illegal/invalid, prints appropriate error msg then returns false
         bool movePiece(int* start, int* end);
 
         bool isCheckMate();

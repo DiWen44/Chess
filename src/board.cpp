@@ -49,39 +49,53 @@ Board::Board(){
     Piece none = nonePiece();
 
     this->boardMat = {
-        {whiteRook, whiteKnight, whiteBish, whiteKing, whiteQueen, whiteBish, whiteKnight, whiteRook},
+        {whiteRook, whiteKnight, whiteBish, whiteQueen, whiteKing, whiteBish, whiteKnight, whiteRook},
         {whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn},
         {none, none, none, none, none, none, none, none},
         {none, none, none, none, none, none, none, none},
         {none, none, none, none, none, none, none, none},
         {none, none, none, none, none, none, none, none},
         {blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn},
-        {blackRook, blackKnight, blackBish, blackKing, blackQueen, blackBish, blackKnight, blackRook}
+        {blackRook, blackKnight, blackBish, blackQueen, blackKing, blackBish, blackKnight, blackRook}
     };
 }
 
 
 void Board::printBoard(){
+    std::cout << std::endl;
+
+    // Print file letters above board 
+    std::cout << "\033[38;5;2m";  // Switch text color to green to print file letters
+    std::cout << "  a    b    c    d    e    f    g    h  " << std::endl;  // Print files
+    std::cout << "\033[0m"; // Revert to prior text coloring
+
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             char pieceChar = pieceToChar(boardMat[i][j]);
-            std::cout << pieceChar;
+            std::cout << "  " << pieceChar << "  ";
             toggleBackgroundColor();
         }
+
+        // Print rank number after rank
+        std::cout << "\033[0m"; // Switch background back to black
+        std::cout << "\033[38;5;1m";  // Switch text color to red to print rank no.
+        std::cout << "  " << i+1; // Print rank
+        std::cout << "\033[0m"; // Revert to prior coloring
+
         std::cout << std::endl;
+        toggleBackgroundColor();
+        
     }
 }
 
 
 void Board::toggleBackgroundColor(){
-    static bool isBlack = true; // Tracks whether background is currently black 
-
+    static bool isBlack = true; // Tracks whether square background painter is currently black 
     if (isBlack){
-        std::cout << "\033[48;5;" << 231 << "m"; // Turn background white
+        std::cout << "\033[48;5;231m"; // Turn painter white
     } else { 
-        std::cout << "\033[0m"; // Turn background black
+        std::cout << "\033[0m"; // Turn painter back to black
     }
-
     isBlack = !isBlack;
 }
 
@@ -112,7 +126,7 @@ void Board::vacatePos(int* pos){
 bool Board::movePiece(int* start, int* end){
     Piece* pieceToMove = getPieceAt(start);
     if (pieceToMove == nullptr){ // getPieceAt returns nullptr if piece is a "none" piece
-        std::cout << "INVALID MOVE: NO PIECE AT THAT POSITION" << std::endl;
+        std::cout << "NO PIECE AT THAT POSITION. TRY AGAIN" << std::endl;
         return false;
     }
 

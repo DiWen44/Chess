@@ -25,7 +25,7 @@ bool isValidSquareStr(const std::string& squareStr){
 }
 
 
-int* squareStrToMoveArr(const std::string& squareStr){
+int* squareStrToSquareArr(const std::string& squareStr){
     // Subtract '0' ASCII value to convert char to single-digit int
     // Subtract 1 since indexing should being at 0
     int x = (squareStr[1] - '0') - 1; 

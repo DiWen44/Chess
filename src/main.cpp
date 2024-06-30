@@ -9,6 +9,7 @@
 int main(){
     std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
     std::cout << "CHESS" << std::endl;
+    std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
 
     Game game;
 
@@ -19,16 +20,18 @@ int main(){
     // Game loop
     while(!end){
 
+        game.getBoard()->printBoard();
+
         std::cout << game.getTurnStr() << "'S TURN" << std::endl;
         std::cout << "> ";
-        std::cin >> input;
+        std::getline(std::cin, input);
 
         // Resign
         if (input == "r"){
             game.resign();
             end = true;
         } 
-
+  
         // Offer draw
         else if (input == "od"){ 
             bool accepted = game.offerDraw();
@@ -38,7 +41,8 @@ int main(){
         // Move
         else if (input[0] == 'm'){
             std::string start = input.substr(2, 2);
-            std::string end = input.substr(5, 2);
+            std::string end = input.substr(5, 2); 
+
 
             // Check if square strings are valid
             if (!isValidSquareStr(start)){
@@ -47,14 +51,24 @@ int main(){
             else if (!isValidSquareStr(end)){
                 std::cout << "INVALID DESTINATION SQUARE INPUT. TRY AGAIN" << std::endl;
             }
-            else {
-                int* startArr = squareStrToMoveArr(start);
-                int* endArr = squareStrToMoveArr(end);
-                game.getBoard()->movePiece(startArr, endArr);
 
-                game.toggleTurn();
+            else {
+                int* startArr = squareStrToSquareArr(start);
+                int* endArr = squareStrToSquareArr(end);
+                bool check = game.getBoard()->movePiece(startArr, endArr);
+                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+                if (check){ // If move was valid and was executed, go to next turn
+                    game.toggleTurn();
+                } // If move was invalid (i.e check==false), do nothing. The program will take us back to the top of the game loop anyway
             }
         }
+
+        // Unrecognized input
+        else{
+            std::cout << "INVALID INPUT. TRY AGAIN" << std::endl;
+        }
+
         std::cout << std::endl;
     }
+    return 0;
 }

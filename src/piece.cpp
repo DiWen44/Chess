@@ -11,51 +11,49 @@ char pieceToChar(const Piece &piece){
         return ' ';
     }
     
-    char res;
     if (piece.color == PieceColor::WHITE){
         switch(piece.type){
             case PieceType::KING:
-                res = '♔';
+                return 'K';
                 break;
             case PieceType::QUEEN:
-                res = '♕';
+                return 'Q';
                 break;
             case PieceType::ROOK:
-                res = '♖';
+                return 'R';
                 break;
             case PieceType::BISHOP:
-                res = '♗';
+                return 'B';
                 break;
             case PieceType::KNIGHT:
-                res = '♘';
+                return 'N';
                 break;
             case PieceType::PAWN:
-                res = '♙';
+                return 'P';
                 break;
         }
     } else if (piece.color == PieceColor::BLACK){
         switch(piece.type){
             case PieceType::KING:
-                res = '♚';
+                return 'k';
                 break;
             case PieceType::QUEEN:
-                res = '♛';
+                return 'q';
                 break;
             case PieceType::ROOK:
-                res = '♜';
+                return 'r';
                 break;
             case PieceType::BISHOP:
-                res = '♝';
+                return 'b';
                 break;
             case PieceType::KNIGHT:
-                res = '♞';
+                return 'n';
                 break;
             case PieceType::PAWN:
-                res = '♟';
+                return 'p';
                 break;
         }
     }
-    return res;
 }
 
 

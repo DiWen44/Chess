@@ -18,7 +18,7 @@ Board* Game::getBoard(){
 
 
 void Game::toggleTurn(){
-    turn = (turn == Color::WHITE) ? Color::WHITE : Color::BLACK;
+    turn = (turn == Color::WHITE) ? Color::BLACK : Color::WHITE;
 }
 
 
@@ -58,8 +58,8 @@ bool Game::offerDraw(){
 
     if (resp == "y"){
         std::cout << "DRAW" << std::endl;
-        return true;
         std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+        return true;
     } else {
         std::cout << "DRAW DECLINED, GAME CONTINUES" << std::endl;
         return false;
