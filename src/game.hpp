@@ -2,16 +2,9 @@
 #include <vector>
 
 #include "piece.hpp"
-#include "square.hpp"
+#include "move.hpp"
 
 #pragma once
-
-
-// Color enum used to track whether it's white or black's turn to move
-enum class Color {
-    WHITE, 
-    BLACK
-};
 
 
 class Game {
@@ -30,7 +23,7 @@ class Game {
         void toggleTurn(); 
 
         // Get the color of the player whose turn it is as, returning it as an option for the color enum.
-        Color getTurn();
+        PieceColor getTurn();
 
         // Get the color of the player whose turn it is, in the form of an all-caps string.
         std::string getTurnStr();
@@ -40,9 +33,20 @@ class Game {
         void toggleBackgroundColor();
 
         // Moves a piece from start square to dest (destination) square
-        // Returns true if move completed, 
-        // if move is found to be illegal/invalid, prints appropriate error msg then returns false
-        bool movePiece(Square start, Square dest);
+        // If a piece is present at the dest square, that piece is removed #
+        // and replaced with the piece being moved
+        void movePiece(const Move& mv);
+
+        // Determines if piece is able to complete a move
+        // According to the rules of that piece's movement
+        // Returns true if it can, otherwise false.
+        bool isLegalMove(const Move& mv);
+
+        // Given a move, determines if the path along that move is clear
+        // i.e. there are no other pieces on that path
+        // Works for moves that are purely horizontal, vertical or diagonal
+        // Returns true if path is clear, otherwise returns false.
+        bool pathClear(const Move& mv);
 
         bool isCheckMate();
         bool isCheck();
@@ -62,6 +66,6 @@ class Game {
         std::vector<std::vector<Piece>> board;
 
         // Holds color of player whose turn it is.
-        Color turn;
+        PieceColor turn;
 
 };

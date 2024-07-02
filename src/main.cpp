@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "game.hpp"
-#include "square.hpp"
+#include "move.hpp"
 
 
 int main(){
@@ -42,7 +42,7 @@ int main(){
         // Move
         else if (input == "m"){
             
-            bool check; // Will hold the bool returned by game.movePiece() and thus will validate moves.
+            bool legal; // Will hold the bool returned by game.movePiece() and thus will validate moves.
             do {
 
                 // Get & validate starting square string (square on which piece to move is located).
@@ -66,11 +66,16 @@ int main(){
                 } while (!isValidSquareStr(destStr));
 
 
-                Square startArr = strToSquare(startStr);
-                Square endArr = strToSquare(destStr);
-                check = game.movePiece(startArr, endArr);
+                Move mv = moveFromSquareStrs(startStr, destStr); 
+                legal = game.isLegalMove(mv); 
 
-            } while (!check); // If move was invalid (i.e check==false).
+                if (legal){
+                    game.movePiece(mv);
+                } else {
+                    std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
+                }
+
+            } while (!legal);
             
             game.toggleTurn();
             // Print board and turn for next turn.
