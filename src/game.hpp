@@ -46,7 +46,7 @@ class Game {
         // i.e. there are no other pieces on that path
         // Works for moves that are purely horizontal, vertical or diagonal
         // Returns true if path is clear, otherwise returns false.
-        bool pathClear(const Move& mv);
+        bool isPathClear(const Move& mv);
 
         bool isCheckMate();
         bool isCheck();

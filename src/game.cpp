@@ -131,6 +131,31 @@ void Game::movePiece(const Move& mv){
 
     board[mv.destRow][mv.destCol] = pieceToMove;
     board[mv.startRow][mv.startCol] = nonePiece(); // Vacate start square by setting it to the "none" piece
+
+    // Check for a pawn promotion
+    // Pawns can be promoted to a queen, rook, bishop or knight.
+    // Provided they have reached the end of the board
+    // i.e. for a white pawn, has reached row 7; for a black pawn, has reached row 0.
+    if (pieceToMove.type == PieceType::PAWN){
+        if ( (mv.destRow == 7 && pieceToMove.color == PieceColor::WHITE) || (mv.destRow == 0 && pieceToMove.color == PieceColor::BLACK) ) {
+            std::string choice;
+            do {
+                std::cout << "PROMOTE TO: QUEEN (q)  ROOK (r)  BISHOP (b)  KNIGHT (n)" << std::endl;
+                std::cout << "> ";
+                std::cin >> choice;
+                std::cout << std::endl;
+            } while (choice != "q" && choice != "r" && choice != "b" && choice != "n");
+
+            // Set move destination to selected piece
+            Piece newPiece;
+            newPiece.color = turn;
+            if (choice == "q"){ newPiece.type = PieceType::QUEEN; }
+            else if (choice == "r"){ newPiece.type = PieceType::ROOK; }
+            else if (choice == "b"){ newPiece.type = PieceType::BISHOP; }
+            else if (choice == "n"){ newPiece.type = PieceType::KNIGHT; }
+            board[mv.destRow][mv.destCol] = newPiece;
+        }
+    }
 }
 
 
@@ -204,7 +229,7 @@ bool Game::isLegalMove(const Move& mv){
         case PieceType::BISHOP:
             // BISHOP MOVE CONDITIONS: Can move by the same number of rows as columns e.g. (1,1), (3,3), if it's path is not blocked by another piece.
             if (abs(disp[0]) == abs(disp[1])){
-                return pathClear(mv);
+                return isPathClear(mv);
             }
             break;
         
@@ -213,7 +238,7 @@ bool Game::isLegalMove(const Move& mv){
             // or by any number of rows on the same column (vertically), 
             // provided it's path isn't blocked by another piece.
             if (disp[0] == 0 || disp[1] == 0){
-                return pathClear(mv);
+                return isPathClear(mv);
             }
             break;
 
@@ -224,7 +249,7 @@ bool Game::isLegalMove(const Move& mv){
             // - Can move by the same number of rows as columns (diagonally).
             // Provided it's path isn't blocked by another piece.
             if (disp[0] == 0 || disp[1] == 0 || abs(disp[0]) == abs(disp[1])){
-                return pathClear(mv);
+                return isPathClear(mv);
             }
             break;
 
@@ -242,7 +267,7 @@ bool Game::isLegalMove(const Move& mv){
 }
 
 
-bool Game::pathClear(const Move& mv){
+bool Game::isPathClear(const Move& mv){
 
     int* disp = displacement(mv);
 
@@ -325,4 +350,3 @@ bool Game::offerDraw(){
         return false;
     }
 }
-
