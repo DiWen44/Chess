@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 #include <cmath>
 
 #include "game.hpp"
@@ -50,7 +51,7 @@ Game::Game(){
 
     Piece none = nonePiece();
 
-    this->board = {
+    this->board = {{
         {whiteRook, whiteKnight, whiteBish, whiteQueen, whiteKing, whiteBish, whiteKnight, whiteRook},
         {whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn},
         {none, none, none, none, none, none, none, none},
@@ -59,13 +60,13 @@ Game::Game(){
         {none, none, none, none, none, none, none, none},
         {blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn},
         {blackRook, blackKnight, blackBish, blackQueen, blackKing, blackBish, blackKnight, blackRook}
-    };
+    }};
 
     this->turn = PieceColor::WHITE;
 }
 
 
-std::vector<std::vector<Piece>> Game::getBoard(){
+std::array<std::array<Piece, 8>, 8> Game::getBoard(){
     return board;
 }
 
@@ -114,30 +115,19 @@ std::string Game::getTurnStr(){
 }
 
 
-void Game::toggleBackgroundColor(){
-    static bool isBlack = true; // Tracks whether square background painter is currently black 
-    if (isBlack){
-        std::cout << "\033[48;5;231m"; // Turn painter white
-    } else { 
-        std::cout << "\033[0m"; // Turn painter back to black
-    }
-    isBlack = !isBlack;
-}
+void Game::movePiece(const Square& start, const Square& dest){
+    Piece pieceToMove = board[start.row][start.col];
+    Piece pieceAtDest = board[dest.row][dest.col];
 
-
-void Game::movePiece(const Move& mv){
-    Piece pieceToMove = board[mv.startRow][mv.startCol];
-    Piece pieceAtDest = board[mv.destRow][mv.destCol];
-
-    board[mv.destRow][mv.destCol] = pieceToMove;
-    board[mv.startRow][mv.startCol] = nonePiece(); // Vacate start square by setting it to the "none" piece
+    board[dest.row][dest.col] = pieceToMove;
+    board[start.row][start.col] = nonePiece(); // Vacate start square by setting it to the "none" piece
 
     // Check for a pawn promotion
     // Pawns can be promoted to a queen, rook, bishop or knight.
     // Provided they have reached the end of the board
     // i.e. for a white pawn, has reached row 7; for a black pawn, has reached row 0.
     if (pieceToMove.type == PieceType::PAWN){
-        if ( (mv.destRow == 7 && pieceToMove.color == PieceColor::WHITE) || (mv.destRow == 0 && pieceToMove.color == PieceColor::BLACK) ) {
+        if ( (dest.row == 7 && pieceToMove.color == PieceColor::WHITE) || (dest.row == 0 && pieceToMove.color == PieceColor::BLACK) ) {
             std::string choice;
             do {
                 std::cout << "PROMOTE TO: QUEEN (q)  ROOK (r)  BISHOP (b)  KNIGHT (n)" << std::endl;
@@ -153,17 +143,17 @@ void Game::movePiece(const Move& mv){
             else if (choice == "r"){ newPiece.type = PieceType::ROOK; }
             else if (choice == "b"){ newPiece.type = PieceType::BISHOP; }
             else if (choice == "n"){ newPiece.type = PieceType::KNIGHT; }
-            board[mv.destRow][mv.destCol] = newPiece;
+            board[dest.row][dest.col] = newPiece;
         }
     }
 }
 
 
-bool Game::isLegalMove(const Move& mv){
+bool Game::isLegalMove(const Square& start, const Square& dest){
 
-    Piece pieceToMove = board[mv.startRow][mv.startCol];
-    Piece pieceAtDest = board[mv.destRow][mv.destCol];
-    int* disp = displacement(mv);
+    Piece pieceToMove = board[start.row][start.col];
+    Piece pieceAtDest = board[dest.row][dest.col];
+    std::array<int, 2> disp = displacement(start, dest);
 
     // Return false here if:
     // - Empty square was selected as start
@@ -198,7 +188,7 @@ bool Game::isLegalMove(const Move& mv){
                     return true;
                 }
                 // Moving 2 squares forward
-                if ( (disp[0] == 2 && disp[1] == 0) && (mv.startRow == 1) && (isNone(board[mv.destRow-1][mv.destCol])) && isNone(pieceAtDest) ){
+                if ( (disp[0] == 2 && disp[1] == 0) && (start.row == 1) && (isNone(board[dest.row-1][dest.col])) && isNone(pieceAtDest) ){
                     return true;
                 }
             }
@@ -214,7 +204,7 @@ bool Game::isLegalMove(const Move& mv){
                     return true;
                 }
                 // Moving 2 squares forward
-                if ( (disp[0] == -2 && disp[1] == 0) && (mv.startRow == 1) && (isNone(board[mv.destRow+1][mv.destCol])) && isNone(pieceAtDest) ){
+                if ( (disp[0] == -2 && disp[1] == 0) && (start.row == 1) && (isNone(board[dest.row+1][dest.col])) && isNone(pieceAtDest) ){
                     return true;
                 }
             }
@@ -229,7 +219,7 @@ bool Game::isLegalMove(const Move& mv){
         case PieceType::BISHOP:
             // BISHOP MOVE CONDITIONS: Can move by the same number of rows as columns e.g. (1,1), (3,3), if it's path is not blocked by another piece.
             if (abs(disp[0]) == abs(disp[1])){
-                return isPathClear(mv);
+                return isPathClear(start, dest);
             }
             break;
         
@@ -238,7 +228,7 @@ bool Game::isLegalMove(const Move& mv){
             // or by any number of rows on the same column (vertically), 
             // provided it's path isn't blocked by another piece.
             if (disp[0] == 0 || disp[1] == 0){
-                return isPathClear(mv);
+                return isPathClear(start, dest);
             }
             break;
 
@@ -249,7 +239,7 @@ bool Game::isLegalMove(const Move& mv){
             // - Can move by the same number of rows as columns (diagonally).
             // Provided it's path isn't blocked by another piece.
             if (disp[0] == 0 || disp[1] == 0 || abs(disp[0]) == abs(disp[1])){
-                return isPathClear(mv);
+                return isPathClear(start, dest);
             }
             break;
 
@@ -266,57 +256,151 @@ bool Game::isLegalMove(const Move& mv){
     }
 }
 
+/*
+std::vector<std::vector<int>> Game::legalMoves(int row, int col){
+    Piece piece = board[row][col];
+    std::vector<std::vector<int>> moves;
 
-bool Game::isPathClear(const Move& mv){
+    switch (piece.type){
+        case PieceType::PAWN:
+            // White pawns
+            if(piece.color == PieceColor::WHITE){
 
-    int* disp = displacement(mv);
+                // Moving 1 square forward
+                if (isNone(board[row+1][col]) ){
+                    moves.push_back( std::vector<int>{row+1, col} );
 
-    // Diagonal move
-    if (abs(disp[0]) == abs(disp[1])){
-        bool incI = mv.startRow < mv.destRow;
-        bool incJ = mv.startCol < mv.destCol;
-        int i = (incI) ? mv.startRow+1 : mv.startRow-1;
-        int j = (incJ) ? mv.startCol+1 : mv.startCol-1;
-
-        while(i != mv.destRow && j != mv.destCol){
-            if ( !isNone(board[i][j]) ){ // If piece encountered
-                return false;
+                    // Moving 2 squares forward from starting square
+                    if (isNone(board[row+2][col]) && row==1){
+                        moves.push_back( std::vector<int>{row+2, col} );
+                    }                
+                } 
+                
+                // Attacking diagonally by 1 square.
+                Piece diagUpRight =  board[row+1][col+1]; // Piece diagonally right and upwards 1 square
+                Piece diagUpLeft =  board[row+1][col-1]; // Piece diagonally left and upwards 1 square
+                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row+1, col+1} );}
+                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row+1, col-1} ); }
             }
 
-            // Traverse by 1 square diagonally to get closer to dest
-            if (incI) { i++; } else { i--; }; 
-            if (incJ) { j++; } else { j--; };
-        }
-        return true; // Return true if no pieces encountered in the way
+            // Black pawns, for which a move "forward" involves moving to a "lower" row. 
+            // e.g. black pawn moving from e7 (row 6) to e5 (row 4) is a "forward" move.
+            else if(piece.color == PieceColor::BLACK){
+
+                // Moving 1 square forward.
+                if (isNone(board[row-1][col]) ){
+                    moves.push_back( std::vector<int>{row-1, col} );
+
+                    // Moving 2 squares forward from starting square.
+                    if (isNone(board[row-2][col]) && row==1){
+                        moves.push_back( std::vector<int>{row-2, col} );
+                    }                
+                } 
+                
+                // Attacking diagonally by 1 square.
+                Piece diagUpRight =  board[row-1][col+1]; // Piece diagonally right and upwards 1 square.
+                Piece diagUpLeft =  board[row-1][col-1]; // Piece diagonally left and upwards 1 square.
+                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row-1, col+1} );}
+                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row-1, col-1} ); }
+            }
+
+        case PieceType::KNIGHT:     
+            std::array<std::array<int, 2>, 8> knightMoves = { { {2,1}, {2,-1}, {1,2}, {1, -2}, {-1,2}, {-1,-2}, {-2,1}, {-2,-1} } };
+            for (int i = 0; i < 8; i++){
+                Piece &pieceAtDest = board[row+knightMoves[i][0]][col+knightMoves[i][1]];
+                // If destination square is either empty or has opposition piece
+                if (pieceAtDest.color != turn){ 
+                    moves.push_back( std::vector<int>{row+knightMoves[i][0], col+knightMoves[i][1]}); 
+                }
+            }
+
+        case PieceType::BISHOP:
+            
+            int i = row;
+            int j = col;
+            while (i < 8 && j < 8){
+
+                // If non-empty square encountered, we need to stop traversing
+                if (!isNone(board[i][j])){ 
+                    // If opponent's piece encountered, add that square to valid moves,
+                    // as taking opposition piece is valid move
+                    if (board[i][j].color != turn){
+                        moves.push_back( std::vector<int>{i, j} );
+                    }
+                    break;
+                }
+
+                moves.push_back( std::vector<int>{i, j} );
+                i++;
+                j++;
+            }
+
+            i = row;
+            j = col;
+
+            while (i >= 0 && j < 8){
+                // If non-empty square encountered, we need to stop traversing
+                if (!isNone(board[i][j])){ 
+                    // If opponent's piece encountered, add that square to valid moves,
+                    // as taking opposition piece is valid move
+                    if (board[i][j].color != turn){
+                        moves.push_back( std::vector<int>{i, j} );
+                    }
+                    break;
+                }
+
+                moves.push_back( std::vector<int>{i, j} );
+                i++;
+                j++;
+            }
+
+            while (i < 8 && j >= 0){
+
+            }
+            while (i >= 0 && j >= 0){
+
+            }
+    
+
+
+
+
+        case PieceType::ROOK :
+        case PieceType::QUEEN :
+        case PieceType::KING :         
     }
 
-    // Horizontal move
-    else if (disp[0] == 0){
-        bool incJ = mv.startCol < mv.destCol;
-        int j = (incJ) ? mv.startCol+1 : mv.startCol-1;
+    return moves;
+}
 
-        while(j != mv.destCol){
-            if ( !isNone(board[mv.startCol][j]) ){  // If piece encountered
-                return false; 
+*/
+
+
+bool Game::isCheck(){
+    // Find the player's king on the board
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+
+            if (board[i][j].type == PieceType::KING && board[i][j].color == turn){
+                Square sq = square(i,j);
+                return isAttacked(sq); // If the king is on an attacked square, then is in check
             }
-            if (incJ) { j++; } else { j--; }; // Bring j 1 square closer to dest
         }
-        return true; // Return true if no pieces encountered in the way
-    } 
-
-    // Vertical move
-    else if (disp[1] == 0){
-        bool incI = mv.startRow < mv.destRow;
-        int i = (incI) ? mv.startRow+1 : mv.startRow-1;
-
-        while(i != mv.destRow){
-            if ( !isNone(board[i][mv.startCol]) ){  // If piece encountered
-                return false; 
-            }
-            if (incI) { i++; } else { i--; }; // Bring i 1 square closer to dest
-        }
-        return true; // Return true if no pieces encountered in the way
     }
+}
+
+
+bool Game::isCheckMate(){
+    // Player must be in check to be checkmated
+    if (!isCheck()){
+        return false;
+    }
+
+    // Player is in checkmate if they are currently in check, and there is no legal move that allows 
+    // them to escape it.
+
+
+    
 }
 
 
@@ -349,4 +433,84 @@ bool Game::offerDraw(){
         std::cout << "DRAW DECLINED, GAME CONTINUES." << std::endl;
         return false;
     }
+}
+
+
+bool Game::isPathClear(const Square& start, const Square& dest){
+
+    std::array<int, 2> disp = displacement(start, dest);
+
+    // Diagonal move
+    if (abs(disp[0]) == abs(disp[1])){
+        bool incI = start.row < dest.row;
+        bool incJ = start.col < dest.col;
+        int i = (incI) ? start.row+1 : start.row-1;
+        int j = (incJ) ? start.col+1 : start.col-1;
+
+        while(i != dest.row && j != dest.col){
+            if ( !isNone(board[i][j]) ){ // If piece encountered
+                return false;
+            }
+
+            // Traverse by 1 square diagonally to get closer to dest
+            if (incI) { i++; } else { i--; }; 
+            if (incJ) { j++; } else { j--; };
+        }
+        return true; // Return true if no pieces encountered in the way
+    }
+
+    // Horizontal move
+    else if (disp[0] == 0){
+        bool incJ = start.col < dest.col;
+        int j = (incJ) ? start.col+1 : start.col-1;
+
+        while(j != dest.col){
+            if ( !isNone(board[start.col][j]) ){  // If piece encountered
+                return false; 
+            }
+            if (incJ) { j++; } else { j--; }; // Bring j 1 square closer to dest
+        }
+        return true; // Return true if no pieces encountered in the way
+    } 
+
+    // Vertical move
+    else if (disp[1] == 0){
+        bool incI = start.row < dest.row;
+        int i = (incI) ? start.row+1 : start.row-1;
+
+        while(i != dest.row){
+            if ( !isNone(board[i][start.col]) ){  // If piece encountered
+                return false; 
+            }
+            if (incI) { i++; } else { i--; }; // Bring i 1 square closer to dest
+        }
+        return true; // Return true if no pieces encountered in the way
+    }
+}
+
+
+bool Game::isAttacked(const Square& sq){
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            if ( !isNone(board[i][j]) && board[i][j].color != turn ){
+                Square sqAtIJ = square(i,j);
+                // If move from sqAtIJ to sq is legal, sq is attacked
+                if (isLegalMove(sqAtIJ, sq)){
+                    return true;
+                } 
+            }
+        }
+    }
+    return false;
+}
+
+
+void Game::toggleBackgroundColor(){
+    static bool isBlack = true; // Tracks whether square background painter is currently black 
+    if (isBlack){
+        std::cout << "\033[48;5;231m"; // Turn painter white
+    } else { 
+        std::cout << "\033[0m"; // Turn painter back to black
+    }
+    isBlack = !isBlack;
 }

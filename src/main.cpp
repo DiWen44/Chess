@@ -18,7 +18,6 @@ int main(){
     game.printBoard();
 
     std::string input;
-    std::vector<std::string> move;
     bool end = false;
 
     // Game loop
@@ -66,11 +65,12 @@ int main(){
                 } while (!isValidSquareStr(destStr));
 
 
-                Move mv = moveFromSquareStrs(startStr, destStr); 
-                legal = game.isLegalMove(mv); 
+                Square start = squareFromStr(startStr);
+                Square dest = squareFromStr(destStr);
+                legal = game.isLegalMove(start, dest); 
 
                 if (legal){
-                    game.movePiece(mv);
+                    game.movePiece(start, dest);
                 } else {
                     std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
                 }
