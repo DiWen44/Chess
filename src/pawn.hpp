@@ -11,11 +11,13 @@ class Pawn : public Piece {
 
         Pawn(PieceColor color);
 
+        Pawn();
+
         char toChar() override;
 
-        bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board) override;
+        bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board) override;
 
-        std::vector<Square> legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board) override;
+        std::vector<Square> legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) override;
 
         // Returns canBeCapturedEnPassant
         bool canBeCapturedEP();

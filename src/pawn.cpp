@@ -10,11 +10,12 @@ Pawn::Pawn(PieceColor color) : Piece(color){
     canBeCapturedEnPassant = false; 
 }
 
+Pawn::Pawn() : Piece(){}
 
 char Pawn::toChar(){ return (color==PieceColor::WHITE) ? 'P' : 'p'; }
 
 
-bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board) {
+bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board) {
     // PAWN MOVE CONDITIONS:
     // - Can move 1 row forward on same col if no piece at dest square
     // - Can move diagonally by 1 and take piece if opposition piece is on that square
@@ -62,7 +63,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
                 return true;
             }
             // Moving 2 squares forward from starting rank
-            else if ( (disp[0] == -2 && disp[1] == 0) && (start.row == 1) && (board[dest.row-1][dest.col] == nullptr)){
+            else if ( (disp[0] == -2 && disp[1] == 0) && (start.row == 6) && (board[dest.row-1][dest.col] == nullptr)){
                 return true;
             }
         }
@@ -76,7 +77,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
 }
 
 
-std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board) {
+std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) {
     // Note that for black pawns, a move "forward" will have negative vertical (1st component) displacement,
     // as black pieces start on the last 2 rows and advance towards the first 2
 

@@ -9,10 +9,13 @@
 King::King(PieceColor color) : Piece(color){}
 
 
+King::King() : Piece(){}
+
+
 char King::toChar(){ return (color==PieceColor::WHITE) ? 'K' : 'k'; }
 
 
-bool King::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool King::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
     // KING MOVE CONDITIONS:
     // - Can move by 1 row (horizontally 1 space) in any direction
     // - Can move by 1 column (vertically 1 space) in any direction
@@ -23,7 +26,7 @@ bool King::isLegalMove(const Square& start, const Square& dest, const std::array
 }
 
 
-std::vector<Square> King::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board){
+std::vector<Square> King::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
     std::vector<Square> dests;
 
     // Array of valid displacements (differences between start and dest squares in form {row, col}) for a king move

@@ -34,17 +34,9 @@ class Game {
         // and replaced with the piece being moved
         void movePiece(const Square& start, const Square& dest);
 
-        // Determines if piece is able to complete a move from start to dest
-        // According to the rules of that piece's movement
-        // Returns true if it can, otherwise false.
+        // Checks if move from start square to dest square is legal. 
+        // Returns true if legal, returns false if illegal
         bool isLegalMove(const Square& start, const Square& dest);
-
-        // Returns a vector of legal destination squares (a square is represented in form of 2-item array: {row, col} )
-        // that the piece at the provided square can legally move to.
-        std::vector<std::array<int, 2>> legalMoves(const Square& sq);
-
-        // Determines if the player whose turn it is is currently in check
-        bool isCheck();
         
         // Determines if the player whose turn it is in checkmate
         bool isCheckMate();
@@ -65,17 +57,6 @@ class Game {
 
         // Holds color of player whose turn it is.
         PieceColor turn;
-
-        // Given a move, determines if the path along that move is clear
-        // i.e. there are no other pieces on that path
-        // Works for moves that are purely horizontal, vertical or diagonal
-        // Returns true if path is clear, otherwise returns false.
-        // Used in isLegalMove()
-        bool isPathClear(const Square& start, const Square& dest);
-        
-        // Check if the square at board[row][col] is attacked by an opposition piece
-        // i.e. a piece of the opposite color to the player whose turn it is.
-        bool isAttacked(const Square& square);
 
         // Used in printBoard() to paint white and black squares in terminal
         // If square background color is white, switches it to black, and vice versa

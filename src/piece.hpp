@@ -16,10 +16,21 @@ enum class PieceColor{
 
 class Piece{
     public:
+
+
         Piece(PieceColor color);
+
+        // Overload constructors with default constructor so that 
+        // we can allocate pieces on the heap using new.
+        // Once pieces are allocated, we can set their colors
+        // Each piece will have an overloaded default constructor
+        Piece();
 
         // Returns piece's color
         PieceColor getColor();
+
+        // Sets piece's color to provided PieceColor
+        void setColor(PieceColor color);
 
         // Returns the appropriate character for the piece, for display purposes
         // White pieces will be in uppercase, black pieces in lowercase.
@@ -30,15 +41,15 @@ class Piece{
         // R/r - rook
         // Q/q - queen
         // K/k - king
-        virtual char toChar();
+        virtual char toChar() = 0;
 
         // Given a starting square (at which the piece is located), and destination square, determine if the piece can legally move from start to dest
         // Also takes the board as a param
-        virtual bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board);
+        virtual bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board) = 0;
 
         // Given a starting square (at which the piece is located), returns a vector of destination squares to which the piece can legally move
         // Also takes the board as a param
-        virtual std::vector<Square> legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board);
+        virtual std::vector<Square> legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) = 0;
 
     protected:
         // Piece's color

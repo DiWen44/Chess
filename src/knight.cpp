@@ -9,10 +9,13 @@
 Knight::Knight(PieceColor color) : Piece(color){}
 
 
+Knight::Knight() : Piece(){}
+
+
 char Knight::toChar(){ return (color==PieceColor::WHITE) ? 'N' : 'n'; }
 
 
-bool Knight::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool Knight::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
     // KNIGHT MOVE CONDITIONS: Can move either 2 rows and 1 column, or by 1 row and 2 columns, in any direction
     // Unlike other pieces, the knight can do this even if another piece is in it's path (jumping).
     std::array<int, 2> disp = displacement(start, dest);
@@ -20,7 +23,7 @@ bool Knight::isLegalMove(const Square& start, const Square& dest, const std::arr
 }
 
 
-std::vector<Square> Knight::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board){
+std::vector<Square> Knight::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
     std::vector<Square> dests;
 
     // Array of valid displacements (differences between start and dest squares in form {row, col}) for a knight move

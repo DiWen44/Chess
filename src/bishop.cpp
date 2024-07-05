@@ -10,10 +10,13 @@
 Bishop::Bishop(PieceColor color) : Piece(color){}
 
 
+Bishop::Bishop() : Piece(){}
+
+
 char Bishop::toChar(){ return (color==PieceColor::WHITE) ? 'B' : 'b'; }
 
 
-bool Bishop::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool Bishop::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
     // BISHOP MOVE CONDITIONS: Can move by the same number of rows as columns e.g. (1,1), (3,3), if it's path is not blocked by another piece.
     std::array<int, 2> disp = displacement(start, dest);
     if (abs(disp[0]) == abs(disp[1])){ // Move is diagonal if absolute value of row (vertical) displacement = absolute value of column (horizontal) displacement
@@ -50,7 +53,7 @@ bool Bishop::isLegalMove(const Square& start, const Square& dest, const std::arr
 // Then we apply this same process, but along the topleft-bottomright axis
 // (i.e. starting i and j at topleftmost point on axis, then decrementing i while incrementing j to 
 // traverse the axis until we reach the other end of the board, when either i=0 or j=7)
-std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board){
+std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
     
     // 1ST (BOTTOMLEFT-TOPRIGHT) AXIS
     std::vector<Square> dests1stAxis; // Legal destination squares on the 1st (bottomleft-topright) axis
@@ -109,8 +112,8 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
     std::vector<Square> dests2ndAxis; // Legal destination squares on the 2nd (topleft-bottomright) axis
     // Get top-left-most point on the topleft-bottomright axis
     // By iterating topleft-wards from start square until we reach the edge of the board i.e. when either i or j equals 0
-    int i = start.row;
-    int j = start.col;
+    i = start.row;
+    j = start.col;
     while (i < 8 && j > 0){
         i++;
         j--;
@@ -158,14 +161,15 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
         j++;
     }
 
-    // Concatenate 1st and 2nd axes' destinations into dests vector, then return
+    // Concatenate 1st and 2nd axes' destinations into single dests vector, then return
     std::vector<Square> dests;
-    std::merge(dests1stAxis.begin(), dests1stAxis.end(), dests2ndAxis.begin(), dests2ndAxis.end(), dests.begin());
+    dests.insert(dests.end(), dests1stAxis.begin(), dests1stAxis.end());
+    dests.insert(dests.end(), dests2ndAxis.begin(), dests2ndAxis.end());
     return dests;
 }
 
 
-bool Bishop::isPathClear(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool Bishop::isPathClear(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
 
     std::array<int, 2> disp = displacement(start, dest);
 

@@ -9,11 +9,13 @@
 
 Rook::Rook(PieceColor color) : Piece(color){}
 
+Rook::Rook() : Piece(){}
+
 
 char Rook::toChar(){ return (color==PieceColor::WHITE) ? 'R' : 'r'; }
 
 
-bool Rook::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool Rook::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
     std::array<int, 2> disp = displacement(start, dest);
     // ROOK MOVE CONDITIONS: Can move by any number of columns on the same row (horizontally), 
     // or by any number of rows on the same column (vertically), 
@@ -49,7 +51,7 @@ bool Rook::isLegalMove(const Square& start, const Square& dest, const std::array
 //
 // 
 // Then we apply this same process, but along the horizontal axis (i.e. keep row constant, iterate over columns)
-std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board){
+std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
 
     // VERTICAL AXIS
     std::vector<Square> verticalDests; // Legal destination squares on vertical axis
@@ -138,14 +140,15 @@ std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::
         j++;
     }
 
-    // Concatenate vertical and horizontal destinations into dests vector, then return
+    // Concatenate vertical and horizontal destinations into single dests vector, then return
     std::vector<Square> dests;
-    std::merge(verticalDests.begin(), verticalDests.end(), horizontalDests.begin(), horizontalDests.end(), dests.begin());
-    return horizontalDests;
+    dests.insert(dests.end(), verticalDests.begin(), verticalDests.end());
+    dests.insert(dests.end(), horizontalDests.begin(), horizontalDests.end());
+    return dests;
 }
 
 
-bool Rook::isPathClear(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+bool Rook::isPathClear(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board){
 
     std::array<int, 2> disp = displacement(start, dest);
 
