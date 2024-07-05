@@ -31,8 +31,8 @@ Square squareFromStr(const std::string& str);
 bool isValidSquareStr(const std::string& str);
 
 
-// Gets the horizontal and vertical components of the displacement of a given move struct, 
-// This is the number of rows and the number of columns that an arbitrary piece needs to be moved by in order to complete the move.
+// Gets the horizontal and vertical components of the displacement between 2 squares (start and dest). 
+// This is the number of rows and the number of columns that an arbitrary piece needs to be moved by in order to get from start to dest.
 // e.g. the displacement from "a3" to "b5" would be: +2 rows, +1 column.  
 //
 // This is returned in the form of a 2-element int array, 

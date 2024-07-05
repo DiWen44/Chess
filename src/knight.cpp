@@ -1,0 +1,41 @@
+#include <array>
+#include <vector>
+#include <cmath>
+
+#include "piece.hpp"
+#include "knight.hpp"
+
+
+Knight::Knight(PieceColor color) : Piece(color){}
+
+
+char Knight::toChar(){ return (color==PieceColor::WHITE) ? 'N' : 'n'; }
+
+
+bool Knight::isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board){
+    // KNIGHT MOVE CONDITIONS: Can move either 2 rows and 1 column, or by 1 row and 2 columns, in any direction
+    // Unlike other pieces, the knight can do this even if another piece is in it's path (jumping).
+    std::array<int, 2> disp = displacement(start, dest);
+    return ( (abs(disp[0]) == 1 && abs(disp[1]) == 2) || (abs(disp[0]) == 2 && abs(disp[1])  == 1) );
+}
+
+
+std::vector<Square> Knight::legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board){
+    std::vector<Square> dests;
+
+    // Array of valid displacements (differences between start and dest squares in form {row, col}) for a knight move
+    // These will each in turn be added to the starting square to get potential destination squares
+    std::array<std::array<int, 2>, 8> displacements = { { {2,1}, {2,-1}, {1,2}, {1, -2}, {-1,2}, {-1,-2}, {-2,1}, {-2,-1} } };
+
+    for (int i = 0; i < 8; i++){
+        // Get piece at start + displacement
+        Piece *pieceAtDest = board[start.row+displacements[i][0]][start.col+displacements[i][1]];
+        
+        // If destination square is either empty or has opposition piece
+        if (pieceAtDest == nullptr){ 
+            dests.push_back( square(start.row+displacements[i][0], start.col+displacements[i][1]) ); 
+        } else if (pieceAtDest->getColor() != color){
+            dests.push_back( square(start.row+displacements[i][0], start.col+displacements[i][1]) );
+        }
+    }
+}

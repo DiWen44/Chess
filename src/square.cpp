@@ -1,6 +1,6 @@
 #include <string>
 
-#include "move.hpp"
+#include "square.hpp"
 
 
 Square square(int row, int col){

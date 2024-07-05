@@ -1,44 +1,47 @@
 #include <unordered_map>
 #include <string>
+#include <array>
+#include <vector>
 
+#include "square.hpp"
 #pragma once
 
 
-enum class PieceType{
-    NONE,
-    PAWN,
-    KNIGHT,
-    BISHOP,
-    ROOK,
-    QUEEN,
-    KING
-};
-
-
+// Represent's a pieces color
 enum class PieceColor{
-    NONE, 
     WHITE, 
     BLACK
 };
 
 
-typedef struct {
-    PieceType type;
-    PieceColor color;
-} Piece;
+class Piece{
+    public:
+        Piece(PieceColor color);
 
+        // Returns piece's color
+        PieceColor getColor();
 
-// Maps pieces to their unicode chess piece characters 
-char pieceToChar(const Piece &piece);
+        // Returns the appropriate character for the piece, for display purposes
+        // White pieces will be in uppercase, black pieces in lowercase.
+        // The char-to-piece mappings are listed below:
+        // P/p - pawn
+        // N/n - knight
+        // B/b - bishop
+        // R/r - rook
+        // Q/q - queen
+        // K/k - king
+        virtual char toChar();
 
+        // Given a starting square (at which the piece is located), and destination square, determine if the piece can legally move from start to dest
+        // Also takes the board as a param
+        virtual bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<int, 8>, 8>& board);
 
-// Returns a "none" piece
-Piece nonePiece();
+        // Given a starting square (at which the piece is located), returns a vector of destination squares to which the piece can legally move
+        // Also takes the board as a param
+        virtual std::vector<Square> legalDests(const Square& start, const std::array<std::array<int, 8>, 8>& board);
 
+    protected:
+        // Piece's color
+        PieceColor color;
+};
 
-// Returns true if a given piece is a "none" piece, otherwise false
-bool isNone(const Piece& piece);
-
-
-// Overload == operator to allow straightforward comparison between pieces
-bool operator==(const Piece& piece1, const Piece& piece2);

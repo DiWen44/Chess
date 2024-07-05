@@ -3,7 +3,7 @@
 #include <array>
 
 #include "piece.hpp"
-#include "move.hpp"
+#include "square.hpp"
 
 #pragma once
 
@@ -16,7 +16,7 @@ class Game {
         // Constructor - this will mainly set up the board in starting position
         Game();
 
-        std::array<std::array<Piece, 8>, 8> getBoard();
+        std::array<std::array<Piece*, 8>, 8> getBoard();
 
         void printBoard();
 
@@ -40,8 +40,8 @@ class Game {
         bool isLegalMove(const Square& start, const Square& dest);
 
         // Returns a vector of legal destination squares (a square is represented in form of 2-item array: {row, col} )
-        // that the piece at the provided square (i.e. board[row][col]) can legally move to.
-        std::vector<std::array<int, 2>> legalMoves(int row, int col);
+        // that the piece at the provided square can legally move to.
+        std::vector<std::array<int, 2>> legalMoves(const Square& sq);
 
         // Determines if the player whose turn it is is currently in check
         bool isCheck();
@@ -61,7 +61,7 @@ class Game {
 
         // 2-dimensional 8x8 vector representing the board
         // Each empty square on the board is occupied by the "none" piece
-        std::array<std::array<Piece, 8>, 8> board;
+        std::array<std::array<Piece*, 8>, 8> board;
 
         // Holds color of player whose turn it is.
         PieceColor turn;

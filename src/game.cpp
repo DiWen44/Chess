@@ -6,7 +6,7 @@
 
 #include "game.hpp"
 #include "piece.hpp"
-#include "move.hpp"
+#include "square.hpp"
 
 
 Game::Game(){
@@ -49,15 +49,13 @@ Game::Game(){
     blackKing.type = PieceType::KING;
     blackKing.color = PieceColor::BLACK;
 
-    Piece none = nonePiece();
-
     this->board = {{
         {whiteRook, whiteKnight, whiteBish, whiteQueen, whiteKing, whiteBish, whiteKnight, whiteRook},
         {whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn},
-        {none, none, none, none, none, none, none, none},
-        {none, none, none, none, none, none, none, none},
-        {none, none, none, none, none, none, none, none},
-        {none, none, none, none, none, none, none, none},
+        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
+        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
         {blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn},
         {blackRook, blackKnight, blackBish, blackQueen, blackKing, blackBish, blackKnight, blackRook}
     }};
@@ -66,7 +64,7 @@ Game::Game(){
 }
 
 
-std::array<std::array<Piece, 8>, 8> Game::getBoard(){
+std::array<std::array<Piece*, 8>, 8> Game::getBoard(){
     return board;
 }
 
@@ -113,7 +111,6 @@ PieceColor Game::getTurn(){
 std::string Game::getTurnStr(){
     return (turn == PieceColor::WHITE) ? "WHITE" : "BLACK";
 }
-
 
 void Game::movePiece(const Square& start, const Square& dest){
     Piece pieceToMove = board[start.row][start.col];
@@ -256,9 +253,9 @@ bool Game::isLegalMove(const Square& start, const Square& dest){
     }
 }
 
-/*
-std::vector<std::vector<int>> Game::legalMoves(int row, int col){
-    Piece piece = board[row][col];
+
+std::vector<std::array<int, 2>> Game::legalMoves(const Square& sq){
+    Piece piece = board[sq.row][sq.col];
     std::vector<std::vector<int>> moves;
 
     switch (piece.type){
@@ -267,20 +264,20 @@ std::vector<std::vector<int>> Game::legalMoves(int row, int col){
             if(piece.color == PieceColor::WHITE){
 
                 // Moving 1 square forward
-                if (isNone(board[row+1][col]) ){
+                if (isNone(board[sq.row+1][sq.col]) ){
                     moves.push_back( std::vector<int>{row+1, col} );
 
                     // Moving 2 squares forward from starting square
-                    if (isNone(board[row+2][col]) && row==1){
+                    if (isNone(board[sq.row+2][sq.col]) && row==1){
                         moves.push_back( std::vector<int>{row+2, col} );
                     }                
                 } 
                 
                 // Attacking diagonally by 1 square.
-                Piece diagUpRight =  board[row+1][col+1]; // Piece diagonally right and upwards 1 square
-                Piece diagUpLeft =  board[row+1][col-1]; // Piece diagonally left and upwards 1 square
-                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row+1, col+1} );}
-                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row+1, col-1} ); }
+                Piece diagUpRight =  board[sq.row+1][sq.col+1]; // Piece diagonally right and upwards 1 square
+                Piece diagUpLeft =  board[sq.row+1][sq.col-1]; // Piece diagonally left and upwards 1 square
+                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{sq.row+1, sq.col+1} );}
+                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{sq.row+1, sq.col-1} ); }
             }
 
             // Black pawns, for which a move "forward" involves moving to a "lower" row. 
@@ -288,29 +285,29 @@ std::vector<std::vector<int>> Game::legalMoves(int row, int col){
             else if(piece.color == PieceColor::BLACK){
 
                 // Moving 1 square forward.
-                if (isNone(board[row-1][col]) ){
+                if (isNone(board[sq.row-1][sq.col]) ){
                     moves.push_back( std::vector<int>{row-1, col} );
 
                     // Moving 2 squares forward from starting square.
-                    if (isNone(board[row-2][col]) && row==1){
+                    if (isNone(board[sq.row-2][sq.col]) && row==1){
                         moves.push_back( std::vector<int>{row-2, col} );
                     }                
                 } 
                 
                 // Attacking diagonally by 1 square.
-                Piece diagUpRight =  board[row-1][col+1]; // Piece diagonally right and upwards 1 square.
-                Piece diagUpLeft =  board[row-1][col-1]; // Piece diagonally left and upwards 1 square.
-                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row-1, col+1} );}
-                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{row-1, col-1} ); }
+                Piece diagUpRight =  board[sq.row-1][sq.col+1]; // Piece diagonally right and upwards 1 square.
+                Piece diagUpLeft =  board[sq.row-1][sq.col-1]; // Piece diagonally left and upwards 1 square.
+                if ( diagUpRight.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{sq.row-1, sq.col+1} );}
+                if ( diagUpLeft.color == PieceColor::BLACK) { moves.push_back( std::vector<int>{sq.row-1, sq.col-1} ); }
             }
 
         case PieceType::KNIGHT:     
             std::array<std::array<int, 2>, 8> knightMoves = { { {2,1}, {2,-1}, {1,2}, {1, -2}, {-1,2}, {-1,-2}, {-2,1}, {-2,-1} } };
             for (int i = 0; i < 8; i++){
-                Piece &pieceAtDest = board[row+knightMoves[i][0]][col+knightMoves[i][1]];
+                Piece &pieceAtDest = board[sq.row+knightMoves[i][0]][sq.col+knightMoves[i][1]];
                 // If destination square is either empty or has opposition piece
                 if (pieceAtDest.color != turn){ 
-                    moves.push_back( std::vector<int>{row+knightMoves[i][0], col+knightMoves[i][1]}); 
+                    moves.push_back( std::vector<int>{sq.row+knightMoves[i][0], sq.col+knightMoves[i][1]}); 
                 }
             }
 
@@ -372,8 +369,6 @@ std::vector<std::vector<int>> Game::legalMoves(int row, int col){
 
     return moves;
 }
-
-*/
 
 
 bool Game::isCheck(){

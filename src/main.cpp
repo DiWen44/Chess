@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "game.hpp"
-#include "move.hpp"
+#include "square.hpp"
 
 
 int main(){
