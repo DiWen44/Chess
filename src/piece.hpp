@@ -28,6 +28,10 @@ class Piece{
 
         // Returns piece's color
         PieceColor getColor();
+        
+        // Sets hasMoved to true
+        // Has no effect if called when hasMoved = true, as hasMoved is already true.
+        void moved();
 
         // Sets piece's color to provided PieceColor
         void setColor(PieceColor color);
@@ -54,5 +58,8 @@ class Piece{
     protected:
         // Piece's color
         PieceColor color;
+
+        // True if piece has moved from original position, otherwise false
+        bool hasMoved;
 };
 

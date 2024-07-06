@@ -8,6 +8,7 @@
 #include "bishop.hpp"
 #include "rook.hpp"
 
+
 Queen::Queen(PieceColor color) : Piece(color){} 
 
 

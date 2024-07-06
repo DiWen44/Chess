@@ -17,40 +17,73 @@
 
 Game::Game(){
 
-    // Allocate pieces using default constructor, can then set their color attribute after allocation.
-    Piece *whitePawn = new Pawn; 
-    Piece *whiteKnight = new Knight;
-    Piece *whiteRook = new Rook;
-    Piece *whiteBish = new Bishop;
-    Piece *whiteQueen = new Queen;
-    Piece *whiteKing = new King;
-
-    Piece *blackPawn = new Pawn; 
-    Piece *blackKnight = new Knight;
-    Piece *blackRook = new Rook;
-    Piece *blackBish = new Bishop;
-    Piece *blackQueen = new Queen;
-    Piece *blackKing = new King;
-
-    this->board = {{
-        {whiteRook, whiteKnight, whiteBish, whiteQueen, whiteKing, whiteBish, whiteKnight, whiteRook},
-        {whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn, whitePawn},
-        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-        {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
-        {blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn, blackPawn},
-        {blackRook, blackKnight, blackBish, blackQueen, blackKing, blackBish, blackKnight, blackRook}
-    }};
-
-    // Setting colors of pieces on board
+    // Populating board with pieces at starting positions
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
-            if (i < 2) { // If piece in bottom 2 rows
-                board[i][j]->setColor(PieceColor::WHITE); 
-            }
-            else if (i > 5) { // If piece in top 2 rows
-                board[i][j]->setColor(PieceColor::BLACK); 
+
+            switch (i){
+                // White officers
+                case 0: 
+                    switch (j){
+                        case 0:
+                        case 7:
+                            board[i][j] = new Rook;
+                            break;
+                        case 1:
+                        case 6:
+                            board[i][j] = new Knight;
+                            break;               
+                        case 2:
+                        case 5:
+                            board[i][j] = new Bishop;
+                            break;
+                        case 3:
+                            board[i][j] = new Queen;
+                            break;
+                        case 4:
+                            board[i][j] = new King;
+                            break;
+                    }
+                    board[i][j]->setColor(PieceColor::WHITE);
+                    break;
+                // White pawns
+                case 1:
+                    board[i][j] = new Pawn;
+                    board[i][j]->setColor(PieceColor::WHITE);
+                    break;
+                // Black pawns
+                case 6:
+                    board[i][j] = new Pawn;
+                    board[i][j]->setColor(PieceColor::BLACK);
+                    break;
+                // Black officers
+                case 7:
+                    switch (j){
+                        case 0:
+                        case 7:
+                            board[i][j] = new Rook;
+                            break;
+                        case 1:
+                        case 6:
+                            board[i][j] = new Knight;
+                            break;               
+                        case 2:
+                        case 5:
+                            board[i][j] = new Bishop;
+                            break;
+                        case 3:
+                            board[i][j] = new Queen;
+                            break;
+                        case 4:
+                            board[i][j] = new King;
+                            break;
+                    }
+                    board[i][j]->setColor(PieceColor::BLACK);
+                    break;
+                // Empty squares
+                default:
+                    board[i][j] = nullptr;
+                    break;
             }
         }
     }
@@ -76,7 +109,7 @@ void Game::printBoard(){
         for (int j = 0; j < 8; j++){
             if (board[i][j] == nullptr){ // If square is empty
                 std::cout << "     ";
-            } else{
+            } else {
                 char pieceChar = board[i][j]->toChar();
                 std::cout << "  " << pieceChar << "  ";
             }
@@ -117,15 +150,22 @@ void Game::movePiece(const Square& start, const Square& dest){
     Piece *pieceToMove = board[start.row][start.col];
     Piece *pieceAtDest = board[dest.row][dest.col];
 
+    // If destination square not empty, free memory of piece at destination
+    if (pieceAtDest != nullptr){
+        delete pieceAtDest;
+    }
+
     board[dest.row][dest.col] = pieceToMove;
     board[start.row][start.col] = nullptr; // Vacate start square by setting it to nullptr
+    pieceToMove->moved();
 
     // Check for a pawn promotion
-    // Pawns can be promoted to a queen, rook, bishop or knight.
+    // Pawns can be promoted to a queen, rook, bishop or knight,
     // Provided they have reached the end of the board
     // i.e. for a white pawn, has reached row 7; for a black pawn, has reached row 0.
     if (dynamic_cast<Pawn*>(pieceToMove)){ // dynamic_cast will returns a truthy value if pieceToMove is a pawn
-        if ( (dest.row == 7 && pieceToMove->getColor() == PieceColor::WHITE) || (dest.row == 0 && pieceToMove->getColor() == PieceColor::BLACK) ) {
+
+        if ( (dest.row == 7 && turn == PieceColor::WHITE) || (dest.row == 0 && turn == PieceColor::BLACK) ) {
             std::string choice;
             do {
                 std::cout << "PROMOTE TO: QUEEN (q)  ROOK (r)  BISHOP (b)  KNIGHT (n)" << std::endl;
@@ -136,10 +176,13 @@ void Game::movePiece(const Square& start, const Square& dest){
 
             // Set move destination to selected piece
             Piece* newPiece;
-            if (choice == "q"){ newPiece = new Queen(turn); }
-            else if (choice == "r"){ newPiece = new Rook(turn); }
-            else if (choice == "b"){ newPiece = new Bishop(turn); }
-            else if (choice == "n"){ newPiece = new Knight(turn); }
+            if (choice == "q"){ newPiece = new Queen; }
+            else if (choice == "r"){ newPiece = new Rook; }
+            else if (choice == "b"){ newPiece = new Bishop; }
+            else if (choice == "n"){ newPiece = new Knight; }
+            newPiece->setColor(turn);
+            newPiece->moved(); // hasMoved is false by default, so set it to true for the new piece.
+            delete pieceToMove; // Free memory of pawn that was moved before assigning new piece.
             board[dest.row][dest.col] = newPiece;
         }
     }

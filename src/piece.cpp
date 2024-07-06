@@ -3,10 +3,27 @@
 
 #include "piece.hpp"
 
-Piece::Piece(){}
 
-Piece::Piece(PieceColor color): color(color){}
+Piece::Piece(){
+    hasMoved = false;
+}
 
-PieceColor Piece::getColor(){ return color; }
 
-void Piece::setColor(PieceColor color){ this->color = color; }
+Piece::Piece(PieceColor color): color(color){
+    hasMoved = false;
+}
+
+
+void Piece::moved(){ 
+    hasMoved = true; 
+}
+
+
+PieceColor Piece::getColor(){ 
+    return color; 
+}
+
+
+void Piece::setColor(PieceColor color){ 
+    this->color = color; 
+}

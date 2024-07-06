@@ -42,7 +42,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
                 return true;
             }
             // Moving 2 squares forward from starting rank
-            else if ( (disp[0] == 2 && disp[1] == 0) && (start.row == 1) && (board[dest.row-1][dest.col] == nullptr)){
+            else if ( (disp[0] == 2 && disp[1] == 0) && !hasMoved && (board[dest.row-1][dest.col] == nullptr)){
                 return true;
             }
         }
@@ -63,7 +63,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
                 return true;
             }
             // Moving 2 squares forward from starting rank
-            else if ( (disp[0] == -2 && disp[1] == 0) && (start.row == 6) && (board[dest.row-1][dest.col] == nullptr)){
+            else if ( (disp[0] == -2 && disp[1] == 0) && !hasMoved && (board[dest.row+1][dest.col] == nullptr)){
                 return true;
             }
         }
