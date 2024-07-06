@@ -5,7 +5,8 @@
 
 #include "piece.hpp"
 #include "queen.hpp"
-
+#include "bishop.hpp"
+#include "rook.hpp"
 
 Queen::Queen(PieceColor color) : Piece(color){} 
 
@@ -30,13 +31,27 @@ bool Queen::isLegalMove(const Square& start, const Square& dest, const std::arra
 }
 
 
-// This concatenates into 1 vector the results of legalStraightDests() and legalDiagDests()
+// This combines the bishop's and rook's implementations of legalDests(), 
+// to get the legal diagonal and straight (horizontal & vertical) destinations respectively.
+// These 2 lists of destinations are then combined and returned to give the complete list of legal destinations for the queen.
 std::vector<Square> Queen::legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
-    std::vector<Square> res;
-    std::vector<Square> straightDests = legalStraightDests(start, board);
-    std::vector<Square> diagDests = legalDiagDests(start, board);
+
+    std::array<std::array<Piece*, 8>, 8> boardCopy = board; // Make modifiable copy of board
+
+    // Replace queen with a rook at the start square on the board copy, then get it's legal destinations.
+    // This will get the legal horizontal and vertical destinations for the queen on the original board.
+    Rook rook(color);
+    boardCopy[start.row][start.col] = &rook;
+    std::vector<Square> straightDests = rook.legalDests(start, boardCopy);
+
+    // Put a bishop at the start square on the board copy, then get it's legal destinations.
+    // This will get the legal diagonal destinations for the queen on the original board.
+    Bishop bish(color);
+    boardCopy[start.row][start.col] = &bish;
+    std::vector<Square> diagDests = bish.legalDests(start, boardCopy);
 
     // Concatenate straight & diagonal dests into 1 vector to get all possible legal destinations
+    std::vector<Square> res;
     res.insert(res.end(), straightDests.begin(), straightDests.end());
     res.insert(res.end(), diagDests.begin(), diagDests.end());
 
@@ -79,7 +94,7 @@ bool Queen::isPathClear(const Square& start, const Square& dest, const std::arra
     }
 
     // Diagonal move
-    else if (abs(disp[0]) == abs(disp[1])){
+    else if (abs(disp[0]) == abs(disp[1])){ // Move is diagonal if absolute value of row (vertical) displacement = absolute value of column (horizontal) displacement
         bool incI = start.row < dest.row; // Whether to increment or decrement i to scan from start to dest
         bool incJ = start.col < dest.col; // Whether to increment or decrement j to scan from start to dest
 
@@ -98,219 +113,4 @@ bool Queen::isPathClear(const Square& start, const Square& dest, const std::arra
         }
         return true; // Return true if no pieces encountered in the way
     }
-}
-
-
-// This is exactly the same algorithm used for the bishop's implementation of legalDests()
-std::vector<Square> Queen::legalDiagDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
-
-    // 1ST (BOTTOMLEFT-TOPRIGHT) AXIS
-    std::vector<Square> dests1stAxis; // Legal destination squares on the 1st (bottomleft-topright) axis
-    // Get bottom-left-most point on the bottomleft-topright axis
-    // By iterating bottomleft-wards from start square until we reach the edge of the board i.e. when either i or j equals 0
-    int i = start.row;
-    int j = start.col;
-    while (i >= 0 && j >= 0){
-        i--;
-        j--;
-    }
-    Square bottomLeft = square(i, j);
-
-     // Starting from bottomleft, iterate over axis until the other end of the board is reached
-    i = bottomLeft.row;
-    j = bottomLeft.col;
-    while (i < 8 && j < 8){
-
-        // If encounters non-empty square before reaching rook's position
-        if (board[i][j] != nullptr && i < start.row){
-            dests1stAxis.clear(); // Clear dests - Those squares are not valid dests if there is a piece between them and the start square
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][j]->getColor() != color){
-                    dests1stAxis.push_back( square(i, j) );
-            }
-        }
-
-        // When i and j reach bishop's position / start square
-        else if (i == start.row && j == start.col){ 
-            continue;
-        }
-
-        // If encounters non-empty square after bishop's position
-        else if (board[i][j] != nullptr && i > start.row){
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][j]->getColor() != color){
-                    dests1stAxis.push_back( square(i, j) );
-            }
-            break; // Stop scanning - found all possible destinations on this column
-        }
-        
-        // Default case - If i and j on an empty square
-        else {
-            dests1stAxis.push_back( square(i, j) );
-        }
-
-        i++;
-        j++;
-    }
-
-    // 2ND (TOPLEFT-BOTTOMRIGHT) AXIS
-    std::vector<Square> dests2ndAxis; // Legal destination squares on the 2nd (topleft-bottomright) axis
-    // Get top-left-most point on the topleft-bottomright axis
-    // By iterating topleft-wards from start square until we reach the edge of the board i.e. when either i or j equals 0
-    i = start.row;
-    j = start.col;
-    while (i < 8 && j > 0){
-        i++;
-        j--;
-    }
-    Square topLeft = square(i, j);
-
-    // Starting from topleft, iterate over axis until the other end of the board is reached
-    i = topLeft.row;
-    j = topLeft.col;
-    while (i >= 0 && j < 8){
-
-        // If encounters non-empty square before reaching rook's position
-        if (board[i][j] != nullptr && i < start.row){
-            dests2ndAxis.clear(); // Clear dests - Those squares are not valid dests if there is a piece between them and the start square
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][j]->getColor() != color){
-                    dests2ndAxis.push_back( square(i, j) );
-            }
-        }
-
-        // When i and j reach bishop's position / start square
-        else if (i == start.row && j == start.col){ 
-            continue;
-        }
-
-        // If encounters non-empty square after bishop's position
-        else if (board[i][j] != nullptr && i > start.row){
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][j]->getColor() != color){
-                    dests2ndAxis.push_back( square(i, j) );
-            }
-            break; // Stop scanning - found all possible destinations on this column
-        }
-        
-        // Default case - If i and j on an empty square
-        else {
-            dests2ndAxis.push_back( square(i, j) );
-        }
-
-        i--;
-        j++;
-    }
-
-    // Concatenate 1st and 2nd axes' destinations into single dests vector, then return
-    std::vector<Square> dests;
-    dests.insert(dests.end(), dests1stAxis.begin(), dests1stAxis.end());
-    dests.insert(dests.end(), dests2ndAxis.begin(), dests2ndAxis.end());
-    return dests;
-}
-
-
-// This is exactly the same algorithm used for the rook's implementation of legalDests()
-std::vector<Square> Queen::legalStraightDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board){
-
-    // VERTICAL AXIS
-    std::vector<Square> verticalDests; // Legal destination squares on vertical axis
-
-    // Scanning possible vertical moves (i.e. where start column = dest column)
-    // Start from first row on the starting square's column, scan to last row on the same column.
-    int i = 0;
-    while (i < 8){
-
-        // If encounters non-empty square before reaching rook's position
-        if (board[i][start.col] != nullptr && i < start.row){
-            verticalDests.clear(); // Clear dests - Those squares are not valid dests if there is a piece between them and the start square
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][start.col]->getColor() != color){
-                    verticalDests.push_back( square(i, start.col) );
-            }
-        }
-
-        // When i reaches rook's position / start square
-        else if (i == start.row){ 
-            continue;
-        }
-
-        // If encounters non-empty square after rook's position
-        else if (board[i][start.col] != nullptr && i > start.row){
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[i][start.col]->getColor() != color){
-                    verticalDests.push_back( square(i, start.col) );
-            }
-            break; // Stop scanning - found all possible destinations on this column
-        }
-        
-        // Default case - If i is on an empty square
-        else {
-            verticalDests.push_back( square(i, start.col) );
-        }
-        
-        i++;
-    }
-
-    // HORIZONTAL AXIS
-    std::vector<Square> horizontalDests; // Legal destination squares on horizontal axis
-
-    // Scanning possible horizontal moves (i.e. where start row = dest row)
-    // Use the same principles as above, except instead of vertical, scan horizontally.
-    // Start from first column on the starting square's row, scan to last column on the same row.
-    int j = 0;
-    while (j < 8){
-
-        // If encounters non-empty square before reaching rook's position
-        if (board[start.row][j] != nullptr && j < start.col){
-            horizontalDests.clear(); // Clear dests - Those squares are not valid dests if there is a piece between them and the start square
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[start.row][j]->getColor() != color){
-                    horizontalDests.push_back( square(start.row, j) );
-            }
-        }
-
-        // When j reaches rook's position/start square, simply pass over
-        else if (j == start.col){ 
-            continue;
-        }
-
-        // If encounters non-empty square after rook's position
-        else if (board[start.row][j] != nullptr && j > start.col){
-
-            // If encountered piece is enemy, can capture that piece
-            // So add its square to legal dests
-            if (board[start.row][j]->getColor() != color){
-                    horizontalDests.push_back( square(start.row, j) );
-            }
-            break; // Stop scanning - found all possible destinations on this row
-        }
-        
-        // Default case - If j is on an empty square
-        else {
-            horizontalDests.push_back( square(start.row, j) );
-        }
-        
-        j++;
-    }
-
-    // Concatenate vertical and horizontal destinations into single dests vector, then return
-    std::vector<Square> dests;
-    dests.insert(dests.end(), verticalDests.begin(), verticalDests.end());
-    dests.insert(dests.end(), horizontalDests.begin(), horizontalDests.end());
-    return dests;
 }
