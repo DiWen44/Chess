@@ -80,6 +80,7 @@ int main(){
             game.toggleTurn();
             // Print board and turn for next turn.
             std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+            if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
             std::cout << std::endl;
             std::cout << game.getTurnStr() << "'S TURN" << std::endl;
             game.printBoard();

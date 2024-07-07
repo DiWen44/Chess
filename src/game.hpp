@@ -37,6 +37,9 @@ class Game {
         // Checks if move from start square to dest square is legal. 
         // Returns true if legal, returns false if illegal
         bool isLegalMove(const Square& start, const Square& dest);
+
+        // Determines if the player whose turn it is is in check
+        bool isCheck();
         
         // Determines if the player whose turn it is in checkmate
         bool isCheckMate();
@@ -51,8 +54,8 @@ class Game {
 
     private:
 
-        // 2-dimensional 8x8 vector representing the board
-        // Each empty square on the board is occupied by the "none" piece
+        // 2-dimensional 8x8 array representing the board
+        // Each empty square on the board is occupied by a nullptr
         std::array<std::array<Piece*, 8>, 8> board;
 
         // Holds color of player whose turn it is.

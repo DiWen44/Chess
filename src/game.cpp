@@ -205,7 +205,57 @@ bool Game::isLegalMove(const Square& start, const Square& dest){
         }
     }
 
+    // Return false if move results in the player whose turn it is being in check
+    // Determine this by simulating the move on the board and calling isCheck()
+    board[dest.row][dest.col] = pieceToMove;
+    board[start.row][start.col] = nullptr;
+    if (isCheck()){
+        // Revert board back to previous state that in was in before simulating the move before returning
+        board[start.row][start.col] = pieceToMove;
+        board[dest.row][dest.col] = pieceAtDest;
+        return false;
+    }
+    // Revert board back to previous state that in was in before simulating the move
+    board[start.row][start.col] = pieceToMove;
+    board[dest.row][dest.col] = pieceAtDest;
+
     return pieceToMove->isLegalMove(start, dest, board);
+}
+
+
+// The player is in check if his king is being attacked.
+bool Game::isCheck(){
+
+    // Find player's king on board
+    Square kingSquare;
+    bool brokeInnerLoop = false; // This will allow us to break out of the nested loop.  
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            if (dynamic_cast<King*>(board[i][j])) { // dynamic_cast here returns a truthy value if piece at board[i][j] is a king
+                if (board[i][j]->getColor() == turn){
+                    kingSquare = square(i, j);
+                    brokeInnerLoop = true;
+                    break;
+                }
+            }
+        }
+        if (brokeInnerLoop){ break; } // If the inner loop was broken out of, break out of the outer loop
+    }
+
+    // Now that king is found, determine if king is being attacked.
+    // Do this by scanning the entire board, 
+    // and checking if any opposition piece can legally move to the King's square 
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            if ( board[i][j] != nullptr && board[i][j]->getColor() != turn ){
+                Square sqAtIJ = square(i,j); 
+                if (board[i][j]->isLegalMove(sqAtIJ, kingSquare, board)){
+                    return true;
+                } 
+            }
+        }
+    }
+    return false;
 }
 
 
