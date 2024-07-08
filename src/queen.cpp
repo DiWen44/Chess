@@ -71,7 +71,7 @@ bool Queen::isPathClear(const Square& start, const Square& dest, const std::arra
         int j = (incJ) ? start.col+1 : start.col-1;
 
         while(j != dest.col){
-            if (board[start.col][j] != nullptr){  // If piece encountered
+            if (board[start.row][j] != nullptr){  // If piece encountered
                 return false; 
             }
             if (incJ) { j++; } else { j--; }; // Bring j 1 square closer to dest

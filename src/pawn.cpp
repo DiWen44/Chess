@@ -91,7 +91,7 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
             dests.push_back( square(start.row+1, start.col) );
 
             // Moving 2 squares forward from starting square
-            if (board[start.row+2][start.col] == nullptr && board[start.row+1][start.col] == nullptr && !hasMoved){
+            if (board[start.row+2][start.col] == nullptr && !hasMoved){
                 dests.push_back( square(start.row+2, start.col) );
             }                
         } 
@@ -99,10 +99,10 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
         // Attacking diagonally by 1 square.
         Piece* diagUpRight =  board[start.row+1][start.col+1]; // Piece diagonally right and upwards 1 square
         Piece* diagUpLeft =  board[start.row+1][start.col-1]; // Piece diagonally left and upwards 1 square
-        if ( diagUpRight->getColor() == PieceColor::BLACK) { 
+        if ( diagUpRight != nullptr && diagUpRight->getColor() == PieceColor::BLACK) { 
             dests.push_back( square(start.row+1, start.col+1) );
         }
-        if ( diagUpLeft->getColor() == PieceColor::BLACK) { 
+        if ( diagUpLeft != nullptr && diagUpLeft->getColor() == PieceColor::BLACK) { 
             dests.push_back( square(start.row+1, start.col-1) ); 
         }
     }
@@ -115,7 +115,7 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
             dests.push_back( square(start.row-1, start.col) );
 
             // Moving 2 squares forward from starting square.
-            if (board[start.row-2][start.col] == nullptr && board[start.row-1][start.col] == nullptr && !hasMoved){
+            if (board[start.row-2][start.col] == nullptr && !hasMoved){
                 dests.push_back( square(start.row-2, start.col) );
             }                
         } 
@@ -126,7 +126,7 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
         if ( diagUpRight != nullptr && diagUpRight->getColor() == PieceColor::WHITE ) { 
             dests.push_back( square(start.row-1, start.col+1) );
         }
-        if ( diagUpRight != nullptr && diagUpLeft->getColor() == PieceColor::WHITE ) { 
+        if ( diagUpLeft != nullptr && diagUpLeft->getColor() == PieceColor::WHITE ) { 
             dests.push_back( square(start.row-1, start.col-1) ); 
         }
     }

@@ -10,7 +10,6 @@
 
 class Game {
 
-
     public:
 
         // Constructor - this will mainly set up the board in starting position
@@ -27,7 +26,12 @@ class Game {
         PieceColor getTurn();
 
         // Get the color of the player whose turn it is, in the form of an all-caps string.
+        // (for output purposes)
         std::string getTurnStr();
+
+        // Get the color of the player whose turn it isn't, in the form of an all-caps string.
+        // (for output purposes)
+        std::string getNonTurnStr();
 
         // Moves a piece from start square to dest (destination) square
         // If a piece is present at the dest square, that piece is removed #
@@ -42,7 +46,7 @@ class Game {
         bool isCheck();
         
         // Determines if the player whose turn it is in checkmate
-        bool isCheckMate();
+        bool isCheckmate();
 
         // Represents the player whose turn it is resigning.
         void resign();
@@ -51,12 +55,7 @@ class Game {
         // Returns true if the draw was accepted, returns false if declined.
         bool offerDraw();
 
-
     private:
-
-        // 2-dimensional 8x8 array representing the board
-        // Each empty square on the board is occupied by a nullptr
-        std::array<std::array<Piece*, 8>, 8> board;
 
         // Holds color of player whose turn it is.
         PieceColor turn;
@@ -64,5 +63,9 @@ class Game {
         // Used in printBoard() to paint white and black squares in terminal
         // If square background color is white, switches it to black, and vice versa
         void toggleBackgroundColor();
+
+        // 2-dimensional 8x8 array representing the board
+        // Each empty square on the board is occupied by a nullptr
+        std::array<std::array<Piece*, 8>, 8> board;
 
 };

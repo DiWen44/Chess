@@ -146,6 +146,11 @@ std::string Game::getTurnStr(){
 }
 
 
+std::string Game::getNonTurnStr(){
+    return (turn == PieceColor::WHITE) ? "BLACK" : "WHITE";
+}
+
+
 void Game::movePiece(const Square& start, const Square& dest){
     Piece *pieceToMove = board[start.row][start.col];
     Piece *pieceAtDest = board[dest.row][dest.col];
@@ -223,8 +228,9 @@ bool Game::isLegalMove(const Square& start, const Square& dest){
 }
 
 
-// The player is in check if his king is being attacked.
 bool Game::isCheck(){
+    // The player is in check if his king is being attacked, so
+    // here we will determine if that is the case
 
     // Find player's king on board
     Square kingSquare;
@@ -247,6 +253,7 @@ bool Game::isCheck(){
     // and checking if any opposition piece can legally move to the King's square 
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
+            // If square contains enemy piece
             if ( board[i][j] != nullptr && board[i][j]->getColor() != turn ){
                 Square sqAtIJ = square(i,j); 
                 if (board[i][j]->isLegalMove(sqAtIJ, kingSquare, board)){
@@ -255,7 +262,55 @@ bool Game::isCheck(){
             }
         }
     }
-    return false;
+    return false; // If no piece is found to be attacking the king
+}
+
+
+bool Game::isCheckmate(){
+    // Player is in checkmate if:
+    // - He is currently in check/
+    // - He has no legal moves that can get him out of check
+    // 
+    // So this algorithm involves determining if the player is currently in check,
+    // and if so, scanning the entire board, checking if there is a legal move the player could make
+    // that would break the check
+
+    // Player must be in check to be checkmated
+    if (!isCheck()){
+        return false;
+    }
+
+    // Scan entire board, checking, for each friendly piece, 
+    // if that piece has a move that can break the check 
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            
+            if ( board[i][j] != nullptr && board[i][j]->getColor() == turn ){ // If square contains player's piece
+                
+                // Get all legal destinations for piece at board[i][j]
+                Piece* pieceToMove = board[i][j];
+                Square sqAtIJ = square(i,j); 
+                std::vector<Square> dests = pieceToMove->legalDests(sqAtIJ, board);
+
+                // Iterate through all legal dests for pieceToMove.
+                for (auto dest: dests){
+
+                    Piece* pieceAtDest =  board[dest.row][dest.col];
+
+                    // Simulate move to dest on board and determine if it has broken the check
+                    board[dest.row][dest.col] = pieceToMove;
+                    board[i][j] = nullptr;
+                    if (!isCheck()){ // If move breaks check
+                        return false;
+                    }
+                    // Revert board back to previous state that in was in before simulating the move
+                    board[i][j] = pieceToMove;
+                    board[dest.row][dest.col] = pieceAtDest;
+                }
+            }
+        }
+    }
+    return true; // If no move was found that could break the check
 }
 
 

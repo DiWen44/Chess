@@ -27,7 +27,7 @@ bool Bishop::isLegalMove(const Square& start, const Square& dest, const std::arr
 
 
 // This algorithms involves scanning along the 2 axes of diagonal movement: bottomleft-topright, and topleft-bottomright
-// where the origin of these axis is the start square (on which this rook is located).
+// where the origin of these axis is the start square (on which this bishop is located).
 //
 // First we create an vector of legal destination squares.
 // Then we find the bottomleftmost position on the bottomleft-topright axis, and set iterators i and j equal to its row and column respectively
@@ -57,19 +57,18 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
     
     // 1ST (BOTTOMLEFT-TOPRIGHT) AXIS
     std::vector<Square> dests1stAxis; // Legal destination squares on the 1st (bottomleft-topright) axis
-    // Get bottom-left-most point on the bottomleft-topright axis
-    // By iterating bottomleft-wards from start square until we reach the edge of the board i.e. when either i or j equals 0
-    int i = start.row;
-    int j = start.col;
-    while (i >= 0 && j >= 0){
-        i--;
-        j--;
-    }
-    Square bottomLeft = square(i, j);
 
-     // Starting from bottomleft, iterate over axis until the other end of the board is reached
-    i = bottomLeft.row;
-    j = bottomLeft.col;
+    // Get bottom-left-most point on the bottomleft-topright axis
+    // By getting the displacement array from the bottomleft square of the board to the start square,
+    // then scalar subtracting the smaller component from the start square
+    // we get the bottomleftmost square on the axis.
+    std::array<int, 2> dispFromBottomLeft = displacement(square(0, 0), start);
+    int subtractor = std::min(dispFromBottomLeft[0], dispFromBottomLeft[1]);
+    Square bottomLeftOnAxis = square(start.row - subtractor, start.col - subtractor);
+
+    // Starting from bottomleft, iterate over axis until the other end of the board is reached
+    int i = bottomLeftOnAxis.row;
+    int j = bottomLeftOnAxis.col;
     while (i < 8 && j < 8){
 
         // If encounters non-empty square before reaching rook's position
@@ -83,11 +82,6 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
             }
         }
 
-        // When i and j reach bishop's position / start square
-        else if (i == start.row && j == start.col){ 
-            continue;
-        }
-
         // If encounters non-empty square after bishop's position
         else if (board[i][j] != nullptr && i > start.row){
 
@@ -99,8 +93,8 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
             break; // Stop scanning - found all possible destinations on this column
         }
         
-        // Default case - If i and j on an empty square
-        else {
+        // If i and j on an empty square
+        else if (board[i][j] == nullptr){
             dests1stAxis.push_back( square(i, j) );
         }
 
@@ -112,21 +106,22 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
     std::vector<Square> dests2ndAxis; // Legal destination squares on the 2nd (topleft-bottomright) axis
     // Get top-left-most point on the topleft-bottomright axis
     // By iterating topleft-wards from start square until we reach the edge of the board i.e. when either i or j equals 0
-    i = start.row;
-    j = start.col;
-    while (i < 8 && j > 0){
-        i++;
-        j--;
-    }
-    Square topLeft = square(i, j);
+
+    // Get top-left-most point on the topleft-bottomright axis.
+    // By getting the displacement array from the topleft square of the board to the start square,
+    // then adding the component with the smaller absolute value to the start square's row 
+    // and subtracting it from the start square's column, we get the bottomleftmost square on the axis.
+    std::array<int, 2> dispFromTopLeft = displacement(square(7, 0), start);
+    int difference = ( abs(dispFromTopLeft[0]) > abs(dispFromTopLeft[1]) ) ? dispFromTopLeft[0] : dispFromTopLeft[1];
+    Square topLeftOnAxis = square(start.row + difference, start.col - difference);
 
     // Starting from topleft, iterate over axis until the other end of the board is reached
-    i = topLeft.row;
-    j = topLeft.col;
+    i = topLeftOnAxis.row;
+    j = topLeftOnAxis.col;
     while (i >= 0 && j < 8){
 
-        // If encounters non-empty square before reaching rook's position
-        if (board[i][j] != nullptr && i < start.row){
+        // If encounters non-empty square before reaching bishop's position
+        if (board[i][j] != nullptr && i > start.row){
             dests2ndAxis.clear(); // Clear dests - Those squares are not valid dests if there is a piece between them and the start square
 
             // If encountered piece is enemy, can capture that piece
@@ -136,13 +131,8 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
             }
         }
 
-        // When i and j reach bishop's position / start square
-        else if (i == start.row && j == start.col){ 
-            continue;
-        }
-
         // If encounters non-empty square after bishop's position
-        else if (board[i][j] != nullptr && i > start.row){
+        else if (board[i][j] != nullptr && i < start.row){
 
             // If encountered piece is enemy, can capture that piece
             // So add its square to legal dests
@@ -152,8 +142,8 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
             break; // Stop scanning - found all possible destinations on this column
         }
         
-        // Default case - If i and j on an empty square
-        else {
+        // If i and j on an empty square
+        else if (board[i][j] == nullptr){
             dests2ndAxis.push_back( square(i, j) );
         }
 

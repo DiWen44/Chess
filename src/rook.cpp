@@ -43,7 +43,7 @@ bool Rook::isLegalMove(const Square& start, const Square& dest, const std::array
 // - - Clear/empty legal destinations vector
 // - - If square is occupied by enemy piece, add square to legal destinations, as enemy piece can be captured
 //
-// - IF ITERATOR AT START SQUARE - Pass over start square without action
+// - IF ITERATOR AT START SQUARE - Do nothing/pass over
 //
 // - IF ENCOUNTERED NON-EMPTY SQUARE AFTER REACHING START SQUARE:
 // - - If square is occupied by enemy piece, add square to legal destinations.
@@ -72,11 +72,6 @@ std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::
             }
         }
 
-        // When i reaches rook's position / start square
-        else if (i == start.row){ 
-            continue;
-        }
-
         // If encounters non-empty square after rook's position
         else if (board[i][start.col] != nullptr && i > start.row){
 
@@ -89,7 +84,7 @@ std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::
         }
         
         // Default case - If i is on an empty square
-        else {
+        else if (board[i][start.col] == nullptr){
             verticalDests.push_back( square(i, start.col) );
         }
         
@@ -116,11 +111,6 @@ std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::
             }
         }
 
-        // When j reaches rook's position/start square, simply pass over
-        else if (j == start.col){ 
-            continue;
-        }
-
         // If encounters non-empty square after rook's position
         else if (board[start.row][j] != nullptr && j > start.col){
 
@@ -133,7 +123,7 @@ std::vector<Square> Rook::legalDests(const Square& start, const std::array<std::
         }
         
         // Default case - If j is on an empty square
-        else {
+        else if (board[start.row][j] == nullptr){
             horizontalDests.push_back( square(start.row, j) );
         }
         
@@ -159,7 +149,7 @@ bool Rook::isPathClear(const Square& start, const Square& dest, const std::array
         int j = (incJ) ? start.col+1 : start.col-1;
 
         while(j != dest.col){
-            if (board[start.col][j] != nullptr){  // If piece encountered
+            if (board[start.row][j] != nullptr){  // If piece encountered
                 return false; 
             }
             if (incJ) { j++; } else { j--; }; // Bring j 1 square closer to dest

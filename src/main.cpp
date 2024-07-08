@@ -4,6 +4,7 @@
 
 #include "game.hpp"
 #include "square.hpp"
+#include "piece.hpp"
 
 
 int main(){
@@ -53,6 +54,7 @@ int main(){
                         std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
                     }
                 } while (!isValidSquareStr(startStr));
+                Square start = squareFromStr(startStr);
 
                 // Get & validate destination square string.
                 std::string destStr;
@@ -63,10 +65,8 @@ int main(){
                         std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
                     }
                 } while (!isValidSquareStr(destStr));
-
-
-                Square start = squareFromStr(startStr);
                 Square dest = squareFromStr(destStr);
+                
                 legal = game.isLegalMove(start, dest); 
 
                 if (legal){
@@ -78,12 +78,20 @@ int main(){
             } while (!legal);
             
             game.toggleTurn();
-            // Print board and turn for next turn.
-            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-            if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
-            std::cout << std::endl;
-            std::cout << game.getTurnStr() << "'S TURN" << std::endl;
-            game.printBoard();
+
+            // If move has resulted in a checkmate
+            if (game.isCheckmate()) {
+                std::cout << "CHECKMATE - " << game.getNonTurnStr() << " WINS" << std::endl;
+                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+                end = true;
+            } else {
+                // Print board and turn for next turn.
+                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+                if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
+                std::cout << std::endl;
+                std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+                game.printBoard();
+            }
         }
 
         // Unrecognized input

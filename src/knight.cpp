@@ -31,14 +31,20 @@ std::vector<Square> Knight::legalDests(const Square& start, const std::array<std
     std::array<std::array<int, 2>, 8> displacements = { { {2,1}, {2,-1}, {1,2}, {1, -2}, {-1,2}, {-1,-2}, {-2,1}, {-2,-1} } };
 
     for (int i = 0; i < 8; i++){
-        // Get piece at start + displacement
-        Piece *pieceAtDest = board[start.row+displacements[i][0]][start.col+displacements[i][1]];
-        
-        // If destination square is either empty or has opposition piece
-        if (pieceAtDest == nullptr){ 
-            dests.push_back( square(start.row+displacements[i][0], start.col+displacements[i][1]) ); 
-        } else if (pieceAtDest->getColor() != color){
-            dests.push_back( square(start.row+displacements[i][0], start.col+displacements[i][1]) );
+
+        int destRow = start.row+displacements[i][0];
+        int destCol = start.col+displacements[i][1];
+
+        // If calculated new row & column lie within the dimensions of the board
+        if ( (destRow >= 0 && destRow < 8) && (destCol >= 0 && destCol < 8) ){
+
+            Piece *pieceAtDest = board[destRow][destCol];
+            
+            // If destination square is either empty or has opposition piece
+            if (pieceAtDest == nullptr || pieceAtDest->getColor() != color){ 
+                dests.push_back( square(destRow, destCol) ); 
+            }
         }
     }
+    return dests;
 }
