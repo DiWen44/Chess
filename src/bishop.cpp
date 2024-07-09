@@ -112,7 +112,7 @@ std::vector<Square> Bishop::legalDests(const Square& start, const std::array<std
     // then adding the component with the smaller absolute value to the start square's row 
     // and subtracting it from the start square's column, we get the bottomleftmost square on the axis.
     std::array<int, 2> dispFromTopLeft = displacement(square(7, 0), start);
-    int difference = ( abs(dispFromTopLeft[0]) > abs(dispFromTopLeft[1]) ) ? dispFromTopLeft[0] : dispFromTopLeft[1];
+    int difference = ( abs(dispFromTopLeft[0]) < abs(dispFromTopLeft[1]) ) ? dispFromTopLeft[0] : dispFromTopLeft[1];
     Square topLeftOnAxis = square(start.row + difference, start.col - difference);
 
     // Starting from topleft, iterate over axis until the other end of the board is reached

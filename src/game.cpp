@@ -301,6 +301,12 @@ bool Game::isCheckmate(){
                     board[dest.row][dest.col] = pieceToMove;
                     board[i][j] = nullptr;
                     if (!isCheck()){ // If move breaks check
+
+                        // Before returning
+                        // Revert board back to previous state that in was in before simulating the move
+                        board[i][j] = pieceToMove;
+                        board[dest.row][dest.col] = pieceAtDest;
+
                         return false;
                     }
                     // Revert board back to previous state that in was in before simulating the move
