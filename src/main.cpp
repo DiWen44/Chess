@@ -14,92 +14,125 @@ int main(){
 
     Game game;
 
-    // Print starting board & "white's turn"
-    std::cout << "WHITE'S TURN" << std::endl;
-    game.printBoard();
-
-    std::string input;
     bool end = false;
 
     // Game loop
     while(!end){
-        
-        std::cout << "> ";
-        std::cin >> input;
 
-        // Resign
-        if (input == "r"){
-            game.resign();
+        // If last move has resulted in a checkmate
+        if (game.isCheckmate()) {
+            std::cout << "CHECKMATE - " << game.getNonTurnStr() << " WINS" << std::endl;
+            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
             end = true;
         } 
-  
-        // Offer draw
-        else if (input == "od"){ 
-            bool accepted = game.offerDraw();
-            if (accepted){ end = true; }
-        } 
+        else {
+            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+            if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
+            std::cout << std::endl;
+            std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+            game.printBoard();
+        }
 
-        // Move
-        else if (input == "m"){
-            
-            bool legal; // Will hold the bool returned by game.movePiece() and thus will validate moves.
-            do {
+        std::string input;
 
-                // Get & validate starting square string (square on which piece to move is located).
-                std::string startStr;
-                do {
-                    std::cout << "START SQUARE: ";
-                    std::cin >> startStr;
-                    if (!isValidSquareStr(startStr)){
-                        std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
-                    }
-                } while (!isValidSquareStr(startStr));
-                Square start = squareFromStr(startStr);
+        // Tracks whether to switch turns from white to black or vice versa
+        // Will be initialized to false, set to true within the below loop at some stage, then be reset to false here when the next turn begins
+        bool turnChange = false; 
+        do {
+        
+            std::cout << "> ";
+            std::cin >> input;
 
-                // Get & validate destination square string.
-                std::string destStr;
-                do {
-                    std::cout << "DESTINATION SQUARE: ";
-                    std::cin >> destStr;
-                    if (!isValidSquareStr(destStr)){
-                        std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
-                    }
-                } while (!isValidSquareStr(destStr));
-                Square dest = squareFromStr(destStr);
-                
-                legal = game.isLegalMove(start, dest); 
-
-                if (legal){
-                    game.movePiece(start, dest);
-                } else {
-                    std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
-                }
-
-            } while (!legal);
-            
-            game.toggleTurn();
-
-            // If move has resulted in a checkmate
-            if (game.isCheckmate()) {
-                std::cout << "CHECKMATE - " << game.getNonTurnStr() << " WINS" << std::endl;
-                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+            // Resign
+            if (input == "r"){
+                game.resign();
+                turnChange = true;
                 end = true;
-            } else {
-                // Print board and turn for next turn.
-                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-                if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
-                std::cout << std::endl;
-                std::cout << game.getTurnStr() << "'S TURN" << std::endl;
-                game.printBoard();
+            } 
+    
+            // Offer draw
+            else if (input == "od"){ 
+                bool accepted = game.offerDraw();
+                if (accepted){ 
+                    turnChange = true;
+                    end = true; 
+                }
+            } 
+
+            // Move
+            else if (input == "m"){
+                
+                bool legal; // Will hold the bool returned by game.movePiece() and thus will validate moves.
+                do {
+
+                    // Get & validate starting square string (square on which piece to move is located).
+                    std::string startStr;
+                    do {
+                        std::cout << "START SQUARE: ";
+                        std::cin >> startStr;
+                        if (!isValidSquareStr(startStr)){
+                            std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
+                        }
+                    } while (!isValidSquareStr(startStr));
+                    Square start = squareFromStr(startStr);
+
+                    // Get & validate destination square string.
+                    std::string destStr;
+                    do {
+                        std::cout << "DESTINATION SQUARE: ";
+                        std::cin >> destStr;
+                        if (!isValidSquareStr(destStr)){
+                            std::cout << "INVALID SQUARE. TRY AGAIN" << std::endl;
+                        }
+                    } while (!isValidSquareStr(destStr));
+                    Square dest = squareFromStr(destStr);
+                    
+                    legal = game.isLegalMove(start, dest); 
+
+                    if (legal){
+                        game.movePiece(start, dest);
+                    } else {
+                        std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
+                    }
+
+                } while (!legal);
+                
+                turnChange = true;
             }
-        }
 
-        // Unrecognized input
-        else{
-            std::cout << "INVALID INPUT. TRY AGAIN" << std::endl;
-        }
+            // Castling kingside/short
+            else if (input == "cs"){
+                if (game.canCastleShort()){
+                    game.shortCastle();
+                    turnChange = true;
+                }
+                else {
+                    std::cout << "CAN'T CASTLE SHORT HERE" << std::endl;
+                    
+                }
+            }
 
-        std::cout << std::endl;
+            // Castling queenside/long
+            else if (input == "cl"){
+                if (game.canCastleShort()){
+                    game.longCastle();
+                    turnChange = true;
+                }
+                else {
+                    std::cout << "CAN'T CASTLE LONG HERE" << std::endl;
+                }
+            }
+
+            // Unrecognized input
+            else { 
+                std::cout << "INVALID INPUT. TRY AGAIN" << std::endl;
+            }
+
+            std::cout << std::endl;
+
+        } while (!turnChange);
+
+        game.toggleTurn();
     }
     return 0;
 }

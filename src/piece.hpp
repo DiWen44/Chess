@@ -15,8 +15,8 @@ enum class PieceColor{
 
 
 class Piece{
-    public:
 
+    public:
 
         Piece(PieceColor color);
 
@@ -32,6 +32,9 @@ class Piece{
         // Sets hasMoved to true
         // Has no effect if called when hasMoved = true, as hasMoved is already true.
         void moved();
+
+        // Returns value of hasMovedFromOrigin.
+        bool hasMoved();
 
         // Sets piece's color to provided PieceColor
         void setColor(PieceColor color);
@@ -56,10 +59,11 @@ class Piece{
         virtual std::vector<Square> legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) = 0;
 
     protected:
+
         // Piece's color
         PieceColor color;
 
         // True if piece has moved from original position, otherwise false
-        bool hasMoved;
+        bool hasMovedFromOrigin;
 };
 

@@ -10,7 +10,9 @@ Pawn::Pawn(PieceColor color) : Piece(color){
     canBeCapturedEnPassant = false; 
 }
 
+
 Pawn::Pawn() : Piece(){}
+
 
 char Pawn::toChar(){ return (color==PieceColor::WHITE) ? 'P' : 'p'; }
 
@@ -42,7 +44,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
                 return true;
             }
             // Moving 2 squares forward from starting rank
-            else if ( (disp[0] == 2 && disp[1] == 0) && !hasMoved && (board[dest.row-1][dest.col] == nullptr)){
+            else if ( (disp[0] == 2 && disp[1] == 0) && !hasMovedFromOrigin && (board[dest.row-1][dest.col] == nullptr)){
                 return true;
             }
         }
@@ -63,7 +65,7 @@ bool Pawn::isLegalMove(const Square& start, const Square& dest, const std::array
                 return true;
             }
             // Moving 2 squares forward from starting rank
-            else if ( (disp[0] == -2 && disp[1] == 0) && !hasMoved && (board[dest.row+1][dest.col] == nullptr)){
+            else if ( (disp[0] == -2 && disp[1] == 0) && !hasMovedFromOrigin && (board[dest.row+1][dest.col] == nullptr)){
                 return true;
             }
         }
@@ -91,7 +93,7 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
             dests.push_back( square(start.row+1, start.col) );
 
             // Moving 2 squares forward from starting square
-            if (board[start.row+2][start.col] == nullptr && !hasMoved){
+            if (board[start.row+2][start.col] == nullptr && !hasMovedFromOrigin){
                 dests.push_back( square(start.row+2, start.col) );
             }                
         } 
@@ -115,7 +117,7 @@ std::vector<Square> Pawn::legalDests(const Square& start, const std::array<std::
             dests.push_back( square(start.row-1, start.col) );
 
             // Moving 2 squares forward from starting square.
-            if (board[start.row-2][start.col] == nullptr && !hasMoved){
+            if (board[start.row-2][start.col] == nullptr && !hasMovedFromOrigin){
                 dests.push_back( square(start.row-2, start.col) );
             }                
         } 

@@ -51,3 +51,4 @@ std::vector<Square> King::legalDests(const Square& start, const std::array<std::
     }
     return dests;
 }
+

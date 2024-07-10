@@ -89,6 +89,11 @@ Game::Game(){
     }
 
     this->turn = PieceColor::WHITE;
+
+    whiteCanCastleShort = true;
+    whiteCanCastleLong = true;
+    blackCanCastleShort = true;
+    blackCanCastleLong = true;
 }
 
 
@@ -127,7 +132,7 @@ void Game::printBoard(){
         toggleBackgroundColor();
         
     }
-    std::cout << "(m) move  (r) resign  (od) offer draw" << std::endl;  // List valid user inputs under board
+    std::cout << "(m) move (cs) castle short (cl) castle long (r) resign (od) offer draw " << std::endl;  // List valid user inputs under board
 }
 
 
@@ -156,7 +161,7 @@ void Game::movePiece(const Square& start, const Square& dest){
     Piece *pieceAtDest = board[dest.row][dest.col];
 
     // If destination square not empty, free memory of piece at destination
-    if (pieceAtDest != nullptr){
+    if (pieceAtDest != nullptr){        
         delete pieceAtDest;
     }
 
@@ -164,11 +169,32 @@ void Game::movePiece(const Square& start, const Square& dest){
     board[start.row][start.col] = nullptr; // Vacate start square by setting it to nullptr
     pieceToMove->moved();
 
+    // Update castling possibility trackers if piece being moved is king or rook
+    if ( dynamic_cast<King*>(pieceToMove) && !pieceToMove->hasMoved() ){ // dynamic_cast will returns a truthy value if pieceToMove is of the specified class
+        if (turn == PieceColor::WHITE){
+            whiteCanCastleLong = false;
+            whiteCanCastleShort = false;
+        } else {
+            blackCanCastleLong = false;
+            blackCanCastleShort = false;
+        }
+    }
+    else if (dynamic_cast<Rook*>(pieceToMove) && !pieceToMove->hasMoved()){
+        if (turn == PieceColor::WHITE){
+            if (start.col == 0){ whiteCanCastleLong = false; }
+            else if (start.col == 7) { whiteCanCastleShort = false; }
+        } else {
+            if (start.col == 0){ blackCanCastleLong = false; }
+            else if (start.col == 7) { blackCanCastleShort = false; }
+        }
+    }
+
+
     // Check for a pawn promotion
     // Pawns can be promoted to a queen, rook, bishop or knight,
     // Provided they have reached the end of the board
     // i.e. for a white pawn, has reached row 7; for a black pawn, has reached row 0.
-    if (dynamic_cast<Pawn*>(pieceToMove)){ // dynamic_cast will returns a truthy value if pieceToMove is a pawn
+    else if (dynamic_cast<Pawn*>(pieceToMove)){ 
 
         if ( (dest.row == 7 && turn == PieceColor::WHITE) || (dest.row == 0 && turn == PieceColor::BLACK) ) {
             std::string choice;
@@ -228,9 +254,139 @@ bool Game::isLegalMove(const Square& start, const Square& dest){
 }
 
 
+bool Game::canCastleShort(){
+
+    bool possible;
+    Square s1, s2; // These 2 squares are the squares that the king will move through when castling. 
+
+    if (turn == PieceColor::WHITE){
+        possible = whiteCanCastleShort;
+        s1 = square(0, 5);
+        s2 = square(0, 6);           
+
+    } else if(turn == PieceColor::BLACK){
+        possible = blackCanCastleShort;
+        s1 = square(7, 5);
+        s2 = square(7, 6);   
+    }
+
+    if (!possible){ return false; }
+
+    // Can't castle if king would be passing through an attacked square
+    if (isAttacked(s1) || isAttacked(s2)){
+        return false;
+    }
+
+    return true;
+}
+
+
+void Game::shortCastle(){
+
+    // Get current and new (after castling) squares 
+    // on which the king & kingside rook are/will be located.
+    Square kingSquare, rookSquare, newKingSquare, newRookSquare;
+    if (turn == PieceColor::WHITE){
+        kingSquare = square(0, 4);
+        rookSquare = square(0, 7);
+        newKingSquare = square(0, 6);
+        newRookSquare = square(0, 5);
+
+        whiteCanCastleShort = false;
+        whiteCanCastleLong = false;        
+    } 
+    else if(turn == PieceColor::BLACK){
+        kingSquare = square(7, 4);
+        rookSquare = square(7, 7);
+        newKingSquare = square(7, 6);
+        newRookSquare = square(7, 5);   
+
+        blackCanCastleShort = false;
+        blackCanCastleLong = false;  
+    }
+
+    // Move king
+    Piece* king = board[kingSquare.row][kingSquare.col];
+    board[newKingSquare.row][newKingSquare.col] = king;
+    board[kingSquare.row][kingSquare.col] = nullptr;
+    king->moved();
+
+    // Move rook
+    Piece* rook = board[rookSquare.row][rookSquare.col];
+    board[newRookSquare.row][newRookSquare.col] = rook;
+    board[rookSquare.row][rookSquare.col] = nullptr;
+    rook->moved();
+}
+
+
+bool Game::canCastleLong(){
+
+    bool possible;
+    Square s1, s2, s3; // These 3 squares are the squares that the king will move through when castling. 
+
+    if (turn == PieceColor::WHITE){
+        possible = whiteCanCastleLong;
+        Square s1 = square(0, 1);
+        Square s2 = square(0, 2);
+        Square s3 = square(0, 3);          
+
+    } else if(turn == PieceColor::BLACK){
+        possible = blackCanCastleLong;
+        Square s1 = square(7, 1);
+        Square s2 = square(7, 2);
+        Square s3 = square(7, 3);   
+    }
+
+    if (!possible){ return false; }
+
+    // Can't castle if king would be passing through an attacked square
+    if (isAttacked(s1) || isAttacked(s2) || isAttacked(s3)){
+        return false;
+    }
+
+    return true;
+}
+
+
+void Game::longCastle(){
+
+    // Get current and new (after castling) squares 
+    // on which the king & kingside rook are/will be located.
+    Square kingSquare, rookSquare, newKingSquare, newRookSquare;
+    if (turn == PieceColor::WHITE){
+        kingSquare = square(0, 4);
+        rookSquare = square(0, 0);
+        newKingSquare = square(0, 2);
+        newRookSquare = square(0, 3);
+
+        whiteCanCastleShort = false;
+        whiteCanCastleLong = false;        
+    } 
+    else if(turn == PieceColor::BLACK){
+        kingSquare = square(7, 4);
+        rookSquare = square(7, 0);
+        newKingSquare = square(7, 2);
+        newRookSquare = square(7, 3);   
+
+        blackCanCastleShort = false;
+        blackCanCastleLong = false;  
+    }
+
+    // Move king
+    Piece* king = board[kingSquare.row][kingSquare.col];
+    board[newKingSquare.row][newKingSquare.col] = king;
+    board[kingSquare.row][kingSquare.col] = nullptr;
+    king->moved();
+
+    // Move rook
+    Piece* rook = board[rookSquare.row][rookSquare.col];
+    board[newRookSquare.row][newRookSquare.col] = rook;
+    board[rookSquare.row][rookSquare.col] = nullptr;
+    rook->moved();
+}
+
+
 bool Game::isCheck(){
-    // The player is in check if his king is being attacked, so
-    // here we will determine if that is the case
 
     // Find player's king on board
     Square kingSquare;
@@ -248,21 +404,7 @@ bool Game::isCheck(){
         if (brokeInnerLoop){ break; } // If the inner loop was broken out of, break out of the outer loop
     }
 
-    // Now that king is found, determine if king is being attacked.
-    // Do this by scanning the entire board, 
-    // and checking if any opposition piece can legally move to the King's square 
-    for (int i = 0; i < 8; i++){
-        for (int j = 0; j < 8; j++){
-            // If square contains enemy piece
-            if ( board[i][j] != nullptr && board[i][j]->getColor() != turn ){
-                Square sqAtIJ = square(i,j); 
-                if (board[i][j]->isLegalMove(sqAtIJ, kingSquare, board)){
-                    return true;
-                } 
-            }
-        }
-    }
-    return false; // If no piece is found to be attacking the king
+    return isAttacked(kingSquare);
 }
 
 
@@ -351,6 +493,7 @@ bool Game::offerDraw(){
     }
 }
 
+
 void Game::toggleBackgroundColor(){
     static bool isBlack = true; // Tracks whether square background painter is currently black 
     if (isBlack){
@@ -359,4 +502,23 @@ void Game::toggleBackgroundColor(){
         std::cout << "\033[0m"; // Turn painter back to black
     }
     isBlack = !isBlack;
+}
+
+
+// Determine if a target square is being attacked by opposition piece.
+// Do this by scanning the entire board, 
+// and checking if any opposition piece can legally move to the given square.
+bool Game::isAttacked(Square target){
+    for (int i = 0; i < 8; i++){
+        for (int j = 0; j < 8; j++){
+            // If square contains enemy piece
+            if ( board[i][j] != nullptr && board[i][j]->getColor() != turn ){
+                Square sqAtIJ = square(i,j); 
+                if (board[i][j]->isLegalMove(sqAtIJ, target, board)){
+                    return true;
+                } 
+            }
+        }
+    }
+    return false; // If no piece is found to be attacking the square
 }
