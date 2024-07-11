@@ -12,24 +12,27 @@ int main(){
     std::cout << "CHESS" << std::endl;
     std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
 
-    Game game;
+    Player white(PieceColor::WHITE);
+    Player black(PieceColor::BLACK);
+    Game game(&white, &black);
 
     bool end = false;
 
     // Game loop
     while(!end){
 
-        // If last move has resulted in a checkmate
+        // If last turn's move has resulted in a checkmate
         if (game.isCheckmate()) {
-            std::cout << "CHECKMATE - " << game.getNonTurnStr() << " WINS" << std::endl;
+            std::cout << "CHECKMATE - " << game.getTurn()->getOppColorStr() << " WINS" << std::endl;
             std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
             end = true;
+            continue;
         } 
         else {
             std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
             if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
             std::cout << std::endl;
-            std::cout << game.getTurnStr() << "'S TURN" << std::endl;
+            std::cout << game.getTurn()->getColorStr() << "'S TURN" << std::endl;
             game.printBoard();
         }
 
@@ -91,30 +94,28 @@ int main(){
 
                     if (legal){
                         game.movePiece(start, dest);
+                        turnChange = true;
                     } else {
                         std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
                     }
 
                 } while (!legal);
-                
-                turnChange = true;
             }
 
             // Castling kingside/short
             else if (input == "cs"){
-                if (game.canCastleShort()){
+                if (game.shortCastleIsLegal()){
                     game.shortCastle();
                     turnChange = true;
                 }
                 else {
                     std::cout << "CAN'T CASTLE SHORT HERE" << std::endl;
-                    
                 }
             }
 
             // Castling queenside/long
             else if (input == "cl"){
-                if (game.canCastleShort()){
+                if (game.longCastleIsLegal()){
                     game.longCastle();
                     turnChange = true;
                 }

@@ -5,6 +5,9 @@
 #include "square.hpp"
 
 
+#pragma once
+
+
 class Bishop : public Piece {
 
     public:

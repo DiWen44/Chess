@@ -5,6 +5,9 @@
 #include "square.hpp"
 
 
+#pragma once
+
+
 class King : public Piece {
 
     public:

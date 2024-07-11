@@ -4,6 +4,8 @@
 #include "piece.hpp"
 #include "square.hpp"
 
+#pragma once
+
 
 class Knight : public Piece {
 
