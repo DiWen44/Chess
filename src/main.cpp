@@ -21,19 +21,23 @@ int main(){
     // Game loop
     while(!end){
 
-        // If last turn's move has resulted in a checkmate
-        if (game.isCheckmate()) {
-            std::cout << "CHECKMATE - " << game.getTurn()->getOppColorStr() << " WINS" << std::endl;
-            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-            end = true;
-            continue;
-        } 
-        else {
+        GameState state = game.getGameState();
+
+        // If game is still to play for
+        if (state == GameState::CONTESTED){
             std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
             if (game.isCheck()){std::cout << "CHECK" << std::endl;} // Notify players if a check was given.
             std::cout << std::endl;
             std::cout << game.getTurn()->getColorStr() << "'S TURN" << std::endl;
             game.printBoard();
+        }
+        // If the last turn has resulted in either checkmate or stalemate
+        else {
+            if (state == GameState::CHECKMATE){ std::cout << "CHECKMATE - " << game.getTurn()->getOppColorStr() << " WINS" << std::endl; }
+            else if (state == GameState::STALEMATE){ std::cout << "STALEMATE" << std::endl; }
+            std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+            end = true;
+            continue;
         }
 
         std::string input;

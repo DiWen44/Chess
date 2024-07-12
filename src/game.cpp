@@ -386,22 +386,21 @@ bool Game::moveResultsInCheck(const Square& start, const Square& dest){
 }
 
 
-bool Game::isCheckmate(){
-    // Player is in checkmate if:
-    // - He is currently in check/
-    // - He has no legal moves that can get him out of check
-    // 
-    // So this algorithm involves determining if the player is currently in check,
-    // and if so, scanning the entire board, checking if there is a legal move the player could make
-    // that would break the check
-
-    // Player must be in check to be checkmated
-    if (!isCheck()){
-        return false;
-    }
+// Player is in checkmate if:
+// - He is currently in check
+// - He has no legal moves that can get him out of check
+//
+// Stalemate if:
+// - Has no legal moves that don't put himself in check
+// - But is NOT currently in check
+// 
+// Game is contested if neither of the above are true.
+// So this algorithm involves scanning the entire board, checking if there is a legal move the player could make
+// that does not result in check. If not, whether it is checkmate or stalemate is determined by whether the player is in check currently.
+GameState Game::getGameState(){
 
     // Scan entire board, checking, for each friendly piece, 
-    // if that piece has a move that can break the check 
+    // if that piece has a legal move that does not result in, or perpetuate, a check 
     for (int i = 0; i < 8; i++){
         for (int j = 0; j < 8; j++){
             
@@ -415,17 +414,19 @@ bool Game::isCheckmate(){
                 // Iterate through all legal dests for pieceToMove.
                 for (auto dest: dests){
                     
-                    // If a move is found that does not result in check
-                    // i.e. that breaks the check (since the current state of the board is a check)
+                    // If a legal smove is found that does not result in check, game is still contested
                     if (!moveResultsInCheck(sqAtIJ, dest)){
-                        return false;
+                        return GameState::CONTESTED;
                     }
                 }
             }
         }
     }
-    return true; // If no move was found that could break the check
+    // If no move was found that could break the check
+    // Checkmate if player is currently in check, otherwise stalemate
+    return (isCheck) ? GameState::CHECKMATE : GameState::STALEMATE;
 }
+
 
 void Game::toggleBackgroundColor(){
     static bool isBlack = true; // Tracks whether square background painter is currently black 

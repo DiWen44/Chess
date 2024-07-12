@@ -9,6 +9,14 @@
 #pragma once
 
 
+// Type returned by getGameState()
+enum GameState{
+    CONTESTED,
+    CHECKMATE,
+    STALEMATE
+};
+
+
 class Game {
 
     public:
@@ -70,8 +78,9 @@ class Game {
         bool moveResultsInCheck(const Square& start, const Square& dest);
         
 
-        // Determines if the player whose turn it is in checkmate
-        bool isCheckmate();
+        // Determines if the player whose turn it is in checkmate or stalemate,
+        // or if the game is still being played (contested) 
+        GameState getGameState();
 
 
     private:
