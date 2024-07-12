@@ -10,7 +10,7 @@
 
 
 // Type returned by getGameState()
-enum GameState{
+enum class GameState{
     CONTESTED,
     CHECKMATE,
     STALEMATE
@@ -73,10 +73,6 @@ class Game {
         // Determines if the player whose turn it is is in check
         bool isCheck();
 
-        // Determine if the player whose turn it is making a move
-        // from start to dests results in them putting themselves in check.
-        bool moveResultsInCheck(const Square& start, const Square& dest);
-        
 
         // Determines if the player whose turn it is in checkmate or stalemate,
         // or if the game is still being played (contested) 
@@ -85,13 +81,13 @@ class Game {
 
     private:
 
+        // Determine if the player whose turn it is making a move
+        // from start to dests results in them putting themselves in check.
+        bool moveResultsInCheck(const Square& start, const Square& dest);
+
         // Used in printBoard() to paint white and black squares in terminal
         // If square background color is white, switches it to black, and vice versa
         void toggleBackgroundColor();
-
-        // Determine if a given square is being attacked by
-        // an opposition (player whose turn it is not) piece.
-        bool isAttacked(Square target);
 
         // 2-dimensional 8x8 array representing the board
         // Each empty square on the board is occupied by a nullptr

@@ -28,18 +28,6 @@ class Player{
         void setKingSq(const Square& newSquare);
         void setKingSq(int row, int col);
 
-        // returns canCastleShort        
-        bool getCanCastleShort();
-
-        // sets canCastleShort to newVal        
-        void setCastleShort(bool newVal);
-
-        // returns canCastleLong
-        bool getCanCastleLong();
-
-        // sets canCastleLong to newVal
-        void setCastleLong(bool newVal);
-
     private:
 
         // Color of the player's pieces
@@ -48,14 +36,4 @@ class Player{
         // The square the player's king is on, stored here for speedy access
         // Will be updated by game::movePiece() as the king moves
         Square kingSq;
-
-        // If player can castle short
-        // i.e. king and kingside rook have not moved
-        // set to true initially, will be updated by game::movePiece() when the king or rook moves
-        bool canCastleShort;
-
-        // If player can castle long
-        // i.e. king and queenside rook have not moved
-        // set to true initially, will be updated by game::movePiece() when the king or rook moves
-        bool canCastleLong;
 };

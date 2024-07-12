@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "piece.hpp"
+#include "square.hpp"
 #include "king.hpp"
 
 
@@ -52,3 +53,80 @@ std::vector<Square> King::legalDests(const Square& start, const std::array<std::
     return dests;
 }
 
+
+bool King::canCastleShort(const std::array<std::array<Piece*, 8>, 8>& board){
+
+    if (hasMovedFromOrigin){ return false; } // Can't castle if king has moved
+
+    Square s1, s2; // These 2 squares are the squares that the king will move through when castling. 
+    Square rookSq; // Starting square of kingside rook
+    if (color == PieceColor::WHITE){
+        s1 = square(0, 5);
+        s2 = square(0, 6);
+        rookSq = square(0, 7);  
+    } 
+    else if(color == PieceColor::BLACK){
+        s1 = square(7, 5);
+        s2 = square(7, 6);
+        rookSq = square(7, 7);   
+    }
+
+    // If kingside rook is not at starting square i.e. 
+    // the piece at that square has moved (meaning that piece is not the rook that was originally there)
+    // or that square is empty, then can't castle
+    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->hasMoved()){
+        return false;
+    }
+
+    // Can't castle if there's a piece on either of the squares that the king passes over
+    if (board[s1.row][s1.col] != nullptr || board[s2.row][s2.col] != nullptr){
+        return false;
+    }
+
+    // Can't castle if king would be passing through an attacked square
+    if (isAttacked(s1, board, color) || isAttacked(s2, board, color)){
+        return false;
+    }
+
+    return true;
+}
+
+
+bool King::canCastleLong(const std::array<std::array<Piece*, 8>, 8>& board){
+
+    if (hasMovedFromOrigin){ return false; } // Can't castle if king has moved
+
+    Square s1, s2, s3; // These 3 squares are the squares that the king will move through when castling. 
+    Square rookSq; // Starting square of queenside rook
+    if (color == PieceColor::WHITE){
+        s1 = square(0, 1);
+        s2 = square(0, 2);
+        s3 = square(0, 3);
+        rookSq = square(0, 0);          
+    } 
+    else if(color == PieceColor::BLACK){
+        s1 = square(7, 1);
+        s2 = square(7, 2);
+        s3 = square(7, 3);
+        rookSq = square(7, 0);
+    }
+
+    // If queenside rook is not at starting square i.e. that square is empty or
+    // the piece at that square has moved (meaning that piece is not the rook that was originally there),
+    // then can't castle
+    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->hasMoved()){
+        return false;
+    }
+
+    // Can't castle if there's a piece on a square that the king passes over
+    if (board[s1.row][s1.col] != nullptr || board[s2.row][s2.col] != nullptr|| board[s3.row][s3.col] != nullptr){
+        return false;
+    }
+
+    // Can't castle if king would be passing through an attacked square
+    if (isAttacked(s1, board, color) || isAttacked(s2, board, color) || isAttacked(s3, board, color)){
+        return false;
+    }
+
+    return true;
+}

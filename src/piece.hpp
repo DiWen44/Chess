@@ -67,3 +67,12 @@ class Piece{
         bool hasMovedFromOrigin;
 };
 
+
+// Determine if a given "target" square is being attacked by
+// an opposition piece.
+// Takes as parameters:
+// - target square
+// - game board array
+// - color of friendly (i.e. non-opposition) pieces
+bool isAttacked(Square target, const std::array<std::array<Piece*, 8>, 8>& board, PieceColor friendlyColor);
+

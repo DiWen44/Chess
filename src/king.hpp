@@ -22,4 +22,11 @@ class King : public Piece {
 
         std::vector<Square> legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) override;
 
+        // Determines if the king is able to castle short (kingside) 
+        // (the game board is passed as a param)
+        bool canCastleShort(const std::array<std::array<Piece*, 8>, 8>& board);
+
+        // Determines if the king is able to castle long (queenside) 
+        // (the game board is passed as a param)
+        bool canCastleLong(const std::array<std::array<Piece*, 8>, 8>& board);
 };
