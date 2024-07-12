@@ -48,21 +48,33 @@ int main(){
 
             // Resign
             if (input == "r"){
-                game.resign();
+                std::cout << game.getTurn()->getColorStr() << " RESIGNS - " << game.getTurn()->getOppColorStr() << " WINS" << std::endl;
+                std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
                 turnChange = true;
                 end = true;
             } 
     
             // Offer draw
             else if (input == "od"){ 
-                bool accepted = game.offerDraw();
-                if (accepted){ 
+                
+                std::cout << game.getTurn()->getColorStr() << " OFFERS A DRAW" << std::endl;
+                std::string resp;
+                do {
+                    std::cout << game.getTurn()->getOppColorStr() << ", TYPE (y) TO ACCEPT AND (n) TO DECLINE: "; 
+                    std::cin >> resp;
+                } while(resp != "y" && resp != "n");
+
+                if (resp == "y"){
+                    std::cout << "DRAW" << std::endl;
+                    std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
                     turnChange = true;
                     end = true; 
+                } else {
+                    std::cout << "DRAW DECLINED, GAME CONTINUES." << std::endl;
                 }
             } 
 
-            // Move
+            // Regular move
             else if (input == "m"){
                 
                 bool legal; // Will hold the bool returned by game.movePiece() and thus will validate moves.
@@ -99,7 +111,7 @@ int main(){
                         std::cout << "ILLEGAL MOVE. TRY AGAIN" << std::endl;
                     }
 
-                } while (!legal);
+                } while (!legal); // Repeat move process until user inputs a legal move
             }
 
             // Castling kingside/short

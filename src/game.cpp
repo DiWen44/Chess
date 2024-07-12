@@ -164,7 +164,7 @@ void Game::movePiece(const Square& start, const Square& dest){
         // Update player's kingSq
         turn->setKingSq(dest);
     }
-    else if (dynamic_cast<Rook*>(pieceToMove) && !pieceToMove->hasMoved()){
+    else if (dynamic_cast<Rook*>(pieceToMove) && !pieceToMove->hasMoved() ){
         if (start.col == 0){ // If rook moved was queenside rook
             turn->setCastleLong(false); 
         } 
@@ -220,18 +220,9 @@ bool Game::isLegalMove(const Square& start, const Square& dest){
     }
 
     // Return false if move results in the player whose turn it is being in check
-    // Determine this by simulating the move on the board and calling isCheck()
-    board[dest.row][dest.col] = pieceToMove;
-    board[start.row][start.col] = nullptr;
-    if (isCheck()){
-        // Revert board back to previous state that in was in before simulating the move before returning
-        board[start.row][start.col] = pieceToMove;
-        board[dest.row][dest.col] = pieceAtDest;
+    if (moveResultsInCheck(start, dest)){
         return false;
     }
-    // Revert board back to previous state that in was in before simulating the move
-    board[start.row][start.col] = pieceToMove;
-    board[dest.row][dest.col] = pieceAtDest;
 
     return pieceToMove->isLegalMove(start, dest, board);
 }
@@ -367,6 +358,34 @@ bool Game::isCheck(){
 }
 
 
+// To determine if a move results in a check for the player making the move,
+// we simulate the move taking place on the board, call isCheck(), 
+// then revert the board back to it's state prior to simulating the move.
+bool Game::moveResultsInCheck(const Square& start, const Square& dest){
+
+    Piece *pieceToMove = board[start.row][start.col];
+    Piece *pieceAtDest = board[dest.row][dest.col];
+
+    // Simulate move taking place
+    board[dest.row][dest.col] = pieceToMove;
+    board[start.row][start.col] = nullptr;
+    if ( dynamic_cast<King*>(pieceToMove) ){  // If king is being moved, update player's kingSq attribute
+        turn->setKingSq(dest);
+    }
+
+    bool check = isCheck();
+
+    // Before returning, revert board & kingSq (if necessary) back to previous state that in was in before simulating the move
+    board[start.row][start.col] = pieceToMove;
+    board[dest.row][dest.col] = pieceAtDest;
+    if ( dynamic_cast<King*>(pieceToMove) ){
+        turn->setKingSq(start);
+    }
+
+    return check;
+}
+
+
 bool Game::isCheckmate(){
     // Player is in checkmate if:
     // - He is currently in check/
@@ -395,63 +414,18 @@ bool Game::isCheckmate(){
 
                 // Iterate through all legal dests for pieceToMove.
                 for (auto dest: dests){
-
-                    Piece* pieceAtDest =  board[dest.row][dest.col];
-
-                    // Simulate move to dest on board and determine if it has broken the check
-                    board[dest.row][dest.col] = pieceToMove;
-                    board[i][j] = nullptr;
-                    if (!isCheck()){ // If move breaks check
-
-                        // Before returning
-                        // Revert board back to previous state that in was in before simulating the move
-                        board[i][j] = pieceToMove;
-                        board[dest.row][dest.col] = pieceAtDest;
-
+                    
+                    // If a move is found that does not result in check
+                    // i.e. that breaks the check (since the current state of the board is a check)
+                    if (!moveResultsInCheck(sqAtIJ, dest)){
                         return false;
                     }
-                    // Revert board back to previous state that in was in before simulating the move
-                    board[i][j] = pieceToMove;
-                    board[dest.row][dest.col] = pieceAtDest;
                 }
             }
         }
     }
     return true; // If no move was found that could break the check
 }
-
-
-void Game::resign(){
-    std::cout << turn->getColorStr() << " RESIGNS" << std::endl;
-    std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-}
-
-
-bool Game::offerDraw(){
-    std::string playerOffering = turn->getColorStr();
-    std::string playerRecieving = turn->getOppColorStr();
-
-    std::cout << playerOffering << " OFFERS A DRAW" << std::endl;
-    std::cout << playerRecieving<< ", TYPE (y) TO ACCEPT AND (n) TO DECLINE: "; 
-    std::string resp;
-    std::cin >> resp;
-
-    while(resp != "y" && resp != "n"){
-        std::cout << "INVALID INPUT" << std::endl;
-        std::cout << playerRecieving << ", TYPE (y) TO ACCEPT AND (n) TO DECLINE: "; 
-        std::cin >> resp;
-    }
-
-    if (resp == "y"){
-        std::cout << "DRAW" << std::endl;
-        std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
-        return true;
-    } else {
-        std::cout << "DRAW DECLINED, GAME CONTINUES." << std::endl;
-        return false;
-    }
-}
-
 
 void Game::toggleBackgroundColor(){
     static bool isBlack = true; // Tracks whether square background painter is currently black 

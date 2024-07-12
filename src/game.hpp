@@ -64,19 +64,14 @@ class Game {
 
         // Determines if the player whose turn it is is in check
         bool isCheck();
+
+        // Determine if the player whose turn it is making a move
+        // from start to dests results in them putting themselves in check.
+        bool moveResultsInCheck(const Square& start, const Square& dest);
         
 
         // Determines if the player whose turn it is in checkmate
         bool isCheckmate();
-
-
-        // Represents the player whose turn it is resigning.
-        void resign();
-
-
-        // Represents the player whose turn it is offering a draw to the other player
-        // Returns true if the draw was accepted, returns false if declined.
-        bool offerDraw();
 
 
     private:
