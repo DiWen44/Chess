@@ -26,9 +26,11 @@ class Game {
         Game(Player* white, Player* black);
 
 
+        // Returns the board
         std::array<std::array<Piece*, 8>, 8> getBoard();
 
 
+        // Prints the board
         void printBoard();
 
 
@@ -47,9 +49,8 @@ class Game {
         void movePiece(const Square& start, const Square& dest);
 
 
-        // Checks if move from start square to dest square is legal. 
-        // Returns true if legal, returns false if illegal
-        bool isLegalMove(const Square& start, const Square& dest);
+        // Checks if a move, by the player whose turn it is, from start square to destination (dest) square is valid
+        bool isValidMove(const Square& start, const Square& dest);
         
 
         // Returns true if it's possible for the player whose turn it is

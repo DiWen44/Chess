@@ -56,7 +56,7 @@ std::vector<Square> King::legalDests(const Square& start, const std::array<std::
 
 bool King::canCastleShort(const std::array<std::array<Piece*, 8>, 8>& board){
 
-    if (hasMovedFromOrigin){ return false; } // Can't castle if king has moved
+    if (hasMoved){ return false; } // Can't castle if king has moved
 
     Square s1, s2; // These 2 squares are the squares that the king will move through when castling. 
     Square rookSq; // Starting square of kingside rook
@@ -74,7 +74,7 @@ bool King::canCastleShort(const std::array<std::array<Piece*, 8>, 8>& board){
     // If kingside rook is not at starting square i.e. 
     // the piece at that square has moved (meaning that piece is not the rook that was originally there)
     // or that square is empty, then can't castle
-    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->hasMoved()){
+    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->getHasMoved()){
         return false;
     }
 
@@ -94,7 +94,7 @@ bool King::canCastleShort(const std::array<std::array<Piece*, 8>, 8>& board){
 
 bool King::canCastleLong(const std::array<std::array<Piece*, 8>, 8>& board){
 
-    if (hasMovedFromOrigin){ return false; } // Can't castle if king has moved
+    if (hasMoved){ return false; } // Can't castle if king has moved
 
     Square s1, s2, s3; // These 3 squares are the squares that the king will move through when castling. 
     Square rookSq; // Starting square of queenside rook
@@ -114,7 +114,7 @@ bool King::canCastleLong(const std::array<std::array<Piece*, 8>, 8>& board){
     // If queenside rook is not at starting square i.e. that square is empty or
     // the piece at that square has moved (meaning that piece is not the rook that was originally there),
     // then can't castle
-    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->hasMoved()){
+    if (board[rookSq.row][rookSq.col] == nullptr || board[rookSq.row][rookSq.col]->getHasMoved()){
         return false;
     }
 

@@ -191,7 +191,12 @@ void Game::movePiece(const Square& start, const Square& dest){
 }
 
 
-bool Game::isLegalMove(const Square& start, const Square& dest){
+// A player-inputted move is valid if:
+// - the start square contains one of the player's pieces
+// - The end square is either empty or occupied by an enemy piece
+// - The move does not result in check
+// - The piece is legally able to make the move (as per the rules of that piece's movement)
+bool Game::isValidMove(const Square& start, const Square& dest){
     Piece *pieceToMove = board[start.row][start.col];
     Piece *pieceAtDest = board[dest.row][dest.col];
 

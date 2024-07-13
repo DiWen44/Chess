@@ -5,22 +5,22 @@
 
 
 Piece::Piece(){
-    hasMovedFromOrigin = false;
+    hasMoved = false;
 }
 
 
 Piece::Piece(PieceColor color): color(color){
-    hasMovedFromOrigin = false;
+    hasMoved = false;
 }
 
 
 void Piece::moved(){ 
-    hasMovedFromOrigin = true; 
+    hasMoved = true; 
 }
 
 
-bool Piece::hasMoved(){
-    return hasMovedFromOrigin;
+bool Piece::getHasMoved(){
+    return hasMoved;
 }
 
 

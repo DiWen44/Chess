@@ -34,7 +34,7 @@ class Piece{
         void moved();
 
         // Returns value of hasMovedFromOrigin.
-        bool hasMoved();
+        bool getHasMoved();
 
         // Sets piece's color to provided PieceColor
         void setColor(PieceColor color);
@@ -51,11 +51,17 @@ class Piece{
         virtual char toChar() = 0;
 
         // Given a starting square (at which the piece is located), and destination square, determine if the piece can legally move from start to dest
-        // Also takes the board as a param
+        // as per the rules of the piece's movement. Also takes the board as a param.
+        //
+        // NOTE THAT THIS DOES NOT ACCOUNT FOR:
+        // - A start square being provided that does not contain the piece concerned
+        // - A dest square being provided that contains a friendly piece
+        // - The move resulting in the player whose turn it is being in check
+        // These are to be dealt with by the Game::isValidMove() method, which performs the relevant checks before calling this method.
         virtual bool isLegalMove(const Square& start, const Square& dest, const std::array<std::array<Piece*, 8>, 8>& board) = 0;
 
         // Given a starting square (at which the piece is located), returns a vector of destination squares to which the piece can legally move
-        // Also takes the board as a param
+        // Also takes the board as a param.
         virtual std::vector<Square> legalDests(const Square& start, const std::array<std::array<Piece*, 8>, 8>& board) = 0;
 
     protected:
@@ -64,7 +70,7 @@ class Piece{
         PieceColor color;
 
         // True if piece has moved from original position, otherwise false
-        bool hasMovedFromOrigin;
+        bool hasMoved;
 };
 
 
